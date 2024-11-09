@@ -1,13 +1,15 @@
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
+'require.resolve(
+  "react-native/scripts/react_native_pods.rb",
+  {paths: [process.argv[1]]},
   )', __dir__]).strip
-
-platform :ios, min_ios_version_supported
+  
+platform :ios, '15.1'
 prepare_react_native_project!
 
+# Check for linkage settings
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -17,24 +19,47 @@ end
 target 'SweetAndSavory' do
   config = use_native_modules!
 
+  use_frameworks! :linkage => :static
+  $RNFirebaseAsStaticFramework = true
+
+  # Firebase and related dependencies
+  pod 'Firebase'
+  pod 'FirebaseCore'
+  pod 'GoogleUtilities'
+  pod 'FirebaseCoreInternal'
+  pod 'Firebase/Messaging'
+  
+  # React Native Firebase modules
+  pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
+  pod 'RNFBMessaging', :path => '../node_modules/@react-native-firebase/messaging'
+
+  # Push notification dependency for iOS
+  pod 'RNCPushNotificationIOS', :path => '../node_modules/@react-native-community/push-notification-ios'
+
+  # Configure other React Native modules
   use_react_native!(
     :path => config[:reactNativePath],
-    # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # Testing target
   target 'SweetAndSavoryTests' do
     inherit! :complete
-    # Pods for testing
   end
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    # Standard post-install settings for React Native
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :mac_catalyst_enabled => false
     )
+
+    # Exclude arm64 for simulator
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      end
+    end
   end
 end
