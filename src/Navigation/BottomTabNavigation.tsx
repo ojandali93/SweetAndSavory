@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { Activity, Bookmark, Globe, Grid, List, Menu, Plus, PlusSquare, Search, User } from 'react-native-feather';
+import { Activity, Bookmark, BookOpen, Globe, Grid, List, Menu, Plus, PlusSquare, Search, User } from 'react-native-feather';
 import { View } from 'react-native';
 import SearchScreen from '../Screens/Search/SearchScreen'
 import LoginScreen from '../Screens/Authentication/LoginScreen';
@@ -53,7 +53,7 @@ const BottomTabNavigation = () => {
               </View>
             ),
           }}
-        />   
+        />
 
         <Tab.Screen
           name="Recipes"

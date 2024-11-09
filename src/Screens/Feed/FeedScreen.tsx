@@ -90,7 +90,7 @@ const FeedScreen = () => {
           <View style={tailwind`w-full py-6 px-4`}>
             <View style={tailwind`w-full flex flex-col items-center`}>
               <Image style={tailwind`h-32 w-32`} source={Logo} />
-              <Text style={tailwind`text-3xl font-bold text-white mt-4`}>Pinch of Salt</Text>
+              <Text style={tailwind`text-3xl font-bold text-white mt-4`}>Sweet and Savory</Text>
               <Text style={tailwind`text-xl font-semibold text-white mt-1 mb-6`}>
                 Discovering Amazing Recipes
               </Text>
@@ -144,7 +144,7 @@ const FeedScreen = () => {
   const displayContent = () => (
     <View style={tailwind`flex-1`}>
       <StandardHeader
-        header="Pinch of Salt"
+        header="Sweet and Savory"
         add={true}
         addClick={goToAddRecipes}
         notifications={true}
@@ -182,7 +182,7 @@ const FeedScreen = () => {
   const displayLoading = () => (
     <View style={tailwind`flex-1`}>
       <View style={tailwind`h-12 w-full bg-slate-950`} />
-      <StandardHeader header="Pinch of Salt" />
+      <StandardHeader header="Sweet and Savory" />
       <View style={tailwind`flex-1 bg-white flex justify-center items-center`}>
         <ActivityIndicator size="large" color="black" />
       </View>

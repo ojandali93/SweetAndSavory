@@ -26,11 +26,11 @@ const AboutScreen = () => {
           <View style={tailwind`w-full flex flex-col justify-end items-center pt-12 pb-8`}>
             <Image style={tailwind` h-24 w-24 `} source={Logo}/>
           </View>
-          <Text style={tailwind`text-2xl font-bold`}>Pinch of Salt Inc.</Text>
+          <Text style={tailwind`text-2xl font-bold`}>Sweet and Savory Inc.</Text>
           <Text style={tailwind`text-lg font-semibold`}>Bringing amazing recipes to the world.</Text>
           <Text style={tailwind`text-base`}>Version: 1.0.1</Text>
           <Text style={tailwind`text-base`}>Established: Oct. 1, 2024</Text>
-          <Text style={tailwind`text-base mt-2`}>Pinch of Salt was designed, debeloped, and release with one goal in mind. Bringing incredible and amamzing recipes to the world. from 
+          <Text style={tailwind`text-base mt-2`}>Sweet and Savory was designed, debeloped, and release with one goal in mind. Bringing incredible and amamzing recipes to the world. from 
             simple recipes like scrambled eggs to more complex recipes like the beef wellinging. We can want spread amamzing food recipes for those who love to cook as well as those 
             who want to start cooking.
           </Text>

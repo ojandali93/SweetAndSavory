@@ -95,7 +95,7 @@ const ProfileScreen = () => {
             <View style={tailwind`w-full py-6 px-4`}>
               <View style={tailwind`w-full flex flex-col items-center`}>
                 <Image style={tailwind`h-32 w-32`} source={Logo} />
-                <Text style={tailwind`text-3xl font-bold text-white mt-4`}>Pinch of Salt</Text>
+                <Text style={tailwind`text-3xl font-bold text-white mt-4`}>Sweet and Savory</Text>
                 <Text style={tailwind`text-xl font-semibold text-white mt-1 mb-6`}>
                   Discovering Amazing Recipes
                 </Text>
