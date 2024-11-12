@@ -5,29 +5,25 @@ import tailwind from 'twrnc';
 import * as FeatherIcons from 'react-native-feather';
 
 interface AuthInputProps {
+  header: string;
   validation: boolean;
   valid: boolean;
-  multi: boolean;
   placeholder: string;
   placeholderColor: string;
   value: string;
   onChange: (data: string) => void;
   loading: boolean;
-  capitalization: boolean;
-  header: string
 }
 
-const AuthInput: React.FC<AuthInputProps> = ({
+const AuthInputSecure: React.FC<AuthInputProps> = ({
+  header,
   validation,
   valid,
-  multi,
   placeholder,
   placeholderColor,
   value,
   onChange,
-  capitalization,
   loading,
-  header,
 }) => {
 
   return (
@@ -39,9 +35,8 @@ const AuthInput: React.FC<AuthInputProps> = ({
           onChangeText={onChange}
           placeholder={placeholder}
           placeholderTextColor={placeholderColor}
-          multiline={multi}
           style={tailwind`border-b-2 border-b-black pb-.5 font-bold text-base px-1 flex-1`}
-          autoCapitalize={capitalization ? 'sentences' : 'none'}
+          secureTextEntry={true}
         />
         {validation && (
           loading ? (
@@ -55,4 +50,4 @@ const AuthInput: React.FC<AuthInputProps> = ({
   );
 };
 
-export default AuthInput;
+export default AuthInputSecure;

@@ -14,7 +14,7 @@ const TemplateRecipe = () => {
         <View style={tailwind`flex-1 h-full flex flex-row items-center`}>
           <Image style={tailwind`h-10 w-10 rounded-full border-2 border-stone-400`} source={Portrait}/>
           <View style={tailwind`ml-2`}>
-            <Text style={tailwind`font-bold text-base`}>Username</Text>
+            <Text style={tailwind`font-bold text-base`}>johndoe2</Text>
             {/* <Text style={tailwind`text-sm`}>Account name </Text> */}
           </View>
         </View>

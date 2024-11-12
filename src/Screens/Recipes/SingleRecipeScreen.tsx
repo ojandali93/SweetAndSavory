@@ -441,7 +441,7 @@ const SingleRecipeScreen = () => {
               value={comment}
               onChangeText={setComment}
             />
-            <TouchableOpacity onPress={() => CreateComment()} style={tailwind`ml-2 bg-red-500 p-3 rounded-lg`}>
+            <TouchableOpacity onPress={() => CreateComment()} style={tailwind`ml-2 bg-sky-600 p-3 rounded-lg`}>
               <ChevronsUp height={20} width={20} color="white" />
             </TouchableOpacity>
           </View>

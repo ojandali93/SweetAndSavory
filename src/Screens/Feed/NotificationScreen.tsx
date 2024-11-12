@@ -120,10 +120,10 @@ const NotificationScreen = () => {
         back={true}
       />
       <View style={tailwind`w-full flex flex-row justify-between pt-3 my-2 px-4`}>
-        <TouchableOpacity onPress={() => setViewOptions('Activity')} style={tailwind`w-1/2 items-center pb-3 ${viewOptions === 'Activity' ? 'border-b-4 border-b-red-500' : 'border-b-2 border-b-slate-950' }`}>
+        <TouchableOpacity onPress={() => setViewOptions('Activity')} style={tailwind`w-1/2 items-center pb-3 ${viewOptions === 'Activity' ? 'border-b-4 border-b-sky-600' : 'border-b-2 border-b-slate-950' }`}>
           <Text style={tailwind`${viewOptions === 'Activity' ? 'font-bold' : '' }`}>Activity</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setViewOptions('Notifications')} style={tailwind`w-1/2 items-center pb-3 ${viewOptions === 'Notifications' ? 'border-b-4 border-b-red-500' : 'border-b-2 border-b-slate-950' }`}>
+        <TouchableOpacity onPress={() => setViewOptions('Notifications')} style={tailwind`w-1/2 items-center pb-3 ${viewOptions === 'Notifications' ? 'border-b-4 border-b-sky-600' : 'border-b-2 border-b-slate-950' }`}>
           <Text style={tailwind`${viewOptions === 'Notifications' ? 'font-bold' : '' }`}>Notifications</Text>
         </TouchableOpacity>
       </View>

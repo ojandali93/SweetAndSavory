@@ -15,8 +15,8 @@ export type ListStackParamsList = {
   ListsScreen: undefined;
   CreateListScreen: undefined;
   SelectedProfileScreenExplore: {user_id: string};
-  LoginScreenList: undefined;
-  SignupScreenList: undefined;
+  LoginScreen: undefined;
+  SignupScreen: undefined;
   ProfileSetupScreen: undefined;
   SingleListScreen: {list: any};
   ListDetailsScreen: {list: any}
@@ -32,8 +32,8 @@ const ListStackNavigation = () => {
         <StackNav.Screen name="ListsScreen" component={ListsScreen} />
         <StackNav.Screen name="CreateListScreen" component={CreateListScreen} />
         <StackNav.Screen name="SelectedProfileScreenExplore" component={SelectedProfileScreen} />
-        <StackNav.Screen name="LoginScreenList" component={LoginScreen} />
-        <StackNav.Screen name="SignupScreenList" component={SignupScreen} />
+        <StackNav.Screen name="LoginScreen" component={LoginScreen} />
+        <StackNav.Screen name="SignupScreen" component={SignupScreen} />
         <StackNav.Screen name="ProfileSetupScreen" component={ProfileSetupScreen} />
         <StackNav.Screen name="SingleListScreen" component={SingleListScreen} />
         <StackNav.Screen name="ListDetailsScreen" component={ListDetailsScreen} />

@@ -163,7 +163,7 @@ const CreateListScreen = () => {
       <View style={tailwind`w-full p-2 mt-3 flex flex-row items-center justify-between`}>
         <Text style={tailwind`text-lg font-bold`}>Public:</Text>
         <Switch
-          trackColor={{ false: "#b5b5b5", true: "#c72828" }}
+          trackColor={{ false: "#b5b5b5", true: "#0284c7" }}
           thumbColor={isEnabled ? "white" : "white"}
           onValueChange={toggleSwitch}
           value={isEnabled}

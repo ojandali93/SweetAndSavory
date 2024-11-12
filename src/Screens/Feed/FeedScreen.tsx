@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   Alert,
   FlatList,
@@ -11,6 +11,8 @@ import {
   Platform,
   Keyboard,
   ActivityIndicator,
+  Modal,
+  TextInput,
 } from 'react-native';
 import tailwind from 'twrnc';
 import StandardHeader from '../../Components/Headers/StandardHeader';
@@ -18,11 +20,13 @@ import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../../Context/UserContext';
 import TemplateRecipe from '../../Components/Tiles/TemplateRecipe';
 import { BlurView } from '@react-native-community/blur';
-import AuthInput from '../../Components/Inputs/Authentication/AuthInput';
 import RedButton from '../../Components/Buttons/Authentication/RedButton';
-import Logo from '../../Assets/icon-red.png';
+import Logo from '../../Assets/icon-white.png';
 import { useRecipe } from '../../Context/RecipeContext';
 import RecipeTileFollowing from '../../Components/Tiles/RecipeTileFollowing';
+import AuthInput from '../../Components/Inputs/Authentication/AuthInput';
+import AuthInputSecure from '../../Components/Inputs/Authentication/AuthInputSecure';
+import supabase from '../../Utils/supabase';
 
 const FeedScreen = () => {
   const navigation = useNavigation();
@@ -32,10 +36,15 @@ const FeedScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  // Password reset modal state
+  const [resetModalVisible, setResetModalVisible] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
   const submitUserLoginFeed = useCallback(() => {
     loginUser(username, password, navigation, 'FeedScreen');
-  }, [loginUser, navigation]);
+  }, [loginUser, navigation, username, password]);
 
   const goToAddRecipes = useCallback(() => {
     if (!currentProfile) {
@@ -60,6 +69,30 @@ const FeedScreen = () => {
     grabUserRecipes(currentProfile?.user_id).finally(() => setRefreshing(false));
   }, [currentProfile, grabUserRecipes]);
 
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  // Function to handle password reset
+  const sendResetPasswordEmail = async () => {
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: 'sweetandsavory://reset-password',
+    });
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      Alert.alert('Success', 'Password reset link sent. Check your email.');
+      setResetModalVisible(false);
+      setResetEmail('');
+    }
+  };
+
   const LoginOverlay = useMemo(() => (
     <KeyboardAvoidingView
       style={tailwind`flex-1 absolute w-full h-full top-0 left-0 right-0 bottom-0 z-15`}
@@ -68,7 +101,7 @@ const FeedScreen = () => {
       <View style={tailwind`flex-1`}>
         <View>
           <StandardHeader
-            header="Dine With Me"
+            header="Sweet & Savory"
             add={true}
             addClick={goToAddRecipes}
             notifications={true}
@@ -81,65 +114,61 @@ const FeedScreen = () => {
             <TemplateRecipe />
           </View>
         </View>
-        <BlurView
-          style={tailwind`absolute w-full h-full top-0 left-0 right-0 bottom-0 z-10`}
-          blurType="dark"
-          blurAmount={5}
-        />
-        <View style={tailwind`absolute top-0 left-0 right-0 bottom-0 z-20 flex justify-end`}>
+
+        <View style={tailwind`absolute w-full h-full top-0 left-0 right-0 bottom-0 z-10 bg-slate-950 opacity-85`}></View>
+
+        <View style={tailwind`absolute top-0 left-0 right-0 bottom-0 z-20 flex justify-center`}>
           <View style={tailwind`w-full py-6 px-4`}>
             <View style={tailwind`w-full flex flex-col items-center`}>
-              <Image style={tailwind`h-32 w-32`} source={Logo} />
-              <Text style={tailwind`text-3xl font-bold text-white mt-4`}>Sweet and Savory</Text>
-              <Text style={tailwind`text-xl font-semibold text-white mt-1 mb-6`}>
-                Discovering Amazing Recipes
-              </Text>
+              <Image style={tailwind`h-20 w-20 mb-12`} source={Logo} />
             </View>
             <AuthInput
-              icon="User"
+              header="Username"
               valid={false}
               validation={false}
               placeholder="Username..."
               placeholderColor="grey"
               multi={false}
-              secure={false}
               value={username}
               onChange={setUsername}
               loading={false}
               capitalization={false}
             />
+
             <View style={tailwind`mt-4`}>
-              <AuthInput
-                icon="Lock"
+              <AuthInputSecure
+                header={'Password'}
                 valid={false}
                 validation={false}
-                placeholder="Password..."
+                placeholder="*******"
                 placeholderColor="grey"
-                multi={false}
-                secure={true}
                 value={password}
                 onChange={setPassword}
                 loading={false}
-                capitalization={false}
               />
             </View>
-            <View style={tailwind`w-full flex flex-row justify-end mt-1`}>
-              <Text style={tailwind`text-white font-bold`}>Forgot Password?</Text>
-            </View>
+
             <View style={tailwind`mt-4`}>
-              <RedButton submit={submitUserLoginFeed} loading={false} />
+              <RedButton header='Login' submit={submitUserLoginFeed} loading={false} />
             </View>
-            <View style={tailwind`w-full flex flex-row justify-center items-center mt-3`}>
-              <Text style={tailwind`text-white font-bold`}>Don't have an account?</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('SignupScreenFeed')}>
-                <Text style={tailwind`ml-1 font-semibold text-red-500`}>Create Account</Text>
-              </TouchableOpacity>
+
+            <View style={tailwind`w-full flex flex-row justify-between items-center mt-4`}>
+              <View style={tailwind`flex flex-row`}>
+                <TouchableOpacity onPress={() => navigation.navigate('SignupScreen')}>
+                  <Text style={tailwind`ml-1 font-bold text-white underline`}>Create Account</Text>
+                </TouchableOpacity>
+              </View>
+              <View>
+                <TouchableOpacity onPress={() => setResetModalVisible(true)}>
+                  <Text style={tailwind`text-white font-bold underline`}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
       </View>
     </KeyboardAvoidingView>
-  ), [submitUserLoginFeed, navigation, username, password]);
+  ), [submitUserLoginFeed, navigation, username, password, goToAddRecipes]);
 
   const displayContent = () => (
     <View style={tailwind`flex-1`}>
@@ -199,6 +228,38 @@ const FeedScreen = () => {
           {loadingFromAsync ? displayLoading() : currentProfile ? displayContent() : LoginOverlay}
         </View>
       </KeyboardAvoidingView>
+
+      {/* Password Reset Modal */}
+      <Modal
+        visible={resetModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setResetModalVisible(false)}
+      >
+        <View style={tailwind`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tailwind`w-4/5 bg-white p-6 rounded-lg`}>
+            <Text style={tailwind`text-lg font-bold mb-4`}>Reset Password</Text>
+            <View style={tailwind`mb-4`}>
+              <AuthInput
+                header='Account Email'
+                valid={false}
+                validation={false}
+                placeholder='account email...'
+                placeholderColor='grey'
+                multi={false}
+                value={resetEmail}
+                onChange={setResetEmail}
+                loading={false}
+                capitalization={false}
+              />
+            </View>
+            <RedButton header="Submit" submit={sendResetPasswordEmail} loading={false} />
+            <TouchableOpacity onPress={() => setResetModalVisible(false)} style={tailwind`mt-4`}>
+              <Text style={tailwind`text-red-500 text-center font-bold`}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

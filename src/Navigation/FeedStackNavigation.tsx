@@ -11,18 +11,20 @@ import SelectedProfileScreen from '../Screens/Profile/SelectedProfileScreen';
 import AddRecipeToList from '../Screens/Recipes/AddRecipeToList';
 import FavoritesScreen from '../Screens/Feed/FavoritesScreen';
 import NotificationScreen from '../Screens/Feed/NotificationScreen';
+import ResetPasswordScreen from '../Screens/Authentication/ResetPasswordScreen';
 
 export type FeedStackParamList = {
   FeedScreen: undefined;
   SingleRecipeScreen: {recipe: any};
   CreateRecipeScreen: undefined;
-  LoginScreenFeed: undefined;
-  SignupScreenFeed: undefined;
+  LoginScreen: undefined;
+  SignupScreen: undefined;
   ProfileSetupScreen: undefined;
   SelectedProfileScreen: {user_id: string};
   AddRecipeToList: {recipe_id: number};
   FavoritesScreen: undefined;
-  NotificationScreen: undefined
+  NotificationScreen: undefined;
+  ResetPasswordScreen: {email: string, token: string}
 };
 
 const StackNav = createStackNavigator<FeedStackParamList>();
@@ -36,12 +38,13 @@ const FeedStackNavigation = () => {
         <StackNav.Screen name="SingleRecipeScreen" component={SingleRecipeScreen} />
         <StackNav.Screen name="CreateRecipeScreen" component={CreateRecipeScreen} />
         <StackNav.Screen name="AddRecipeToList" component={AddRecipeToList} />
-        <StackNav.Screen name="LoginScreenFeed" component={LoginScreen} />
-        <StackNav.Screen name="SignupScreenFeed" component={SignupScreen} />
+        <StackNav.Screen name="LoginScreen" component={LoginScreen} />
+        <StackNav.Screen name="SignupScreen" component={SignupScreen} />
         <StackNav.Screen name="ProfileSetupScreen" component={ProfileSetupScreen} />
         <StackNav.Screen name="SelectedProfileScreen" component={SelectedProfileScreen} />
         <StackNav.Screen name="FavoritesScreen" component={FavoritesScreen} />
         <StackNav.Screen name="NotificationScreen" component={NotificationScreen} />
+        <StackNav.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
     </StackNav.Navigator>
   );
 };

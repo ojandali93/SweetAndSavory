@@ -318,7 +318,7 @@ const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
               <Text style={tailwind`ml-1 text-base font-bold`}>{userComments.length}</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={() => {navigation.navigate('SingleRecipeScreen', {recipe: recipe})}} style={tailwind`flex flex-row items-center bg-red-500 px-3 py-1 rounded-2`}>
+          <TouchableOpacity onPress={() => {navigation.navigate('SingleRecipeScreen', {recipe: recipe})}} style={tailwind`flex flex-row items-center bg-sky-600 px-3 py-1 rounded-2`}>
             <Text style={tailwind`text-sm text-white font-bold`}>View Recipe</Text>
             <ChevronsRight height={24} width={24} color={'white'}/>
           </TouchableOpacity>

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>SweetAndSavory</string>
+	<string>Sweet &amp; Savory</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -33,6 +33,9 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+  <key>NSPhotoLibraryUsageDescription</key>
+	<string>Sweet and Savory need to access photo library so that users can upload content and images to their account</string>
+
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

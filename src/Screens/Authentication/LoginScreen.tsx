@@ -68,7 +68,7 @@ const LoginScreen = () => {
 
           {/* Login Button */}
           <View style={tailwind`mt-4`}>
-            <RedButton submit={submitUserLogin} loading={false}/>
+            <RedButton header='Login' submit={submitUserLogin} loading={false}/>
           </View>
 
           {/* Create Account Link */}

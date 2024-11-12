@@ -203,8 +203,8 @@ const SelectedProfileScreen = () => {
                   selectedProfile && selectedProfile.link 
                     ? <View style={tailwind`w-full flex flex-row my-3`}>
                         <TouchableOpacity style={tailwind`w-full flex flex-row items-center`} onPress={() => {openLink(selectedProfile.link)}}>
-                          <Link height={18} width={18} color={'red'} style={tailwind`mr-2`}/>
-                          <Text style={tailwind`text-base text-red-500 font-bold`}>{limitStringLengthLink(selectedProfile.link)}</Text>
+                          <Link height={18} width={18} style={tailwind`mr-2 text-sky-600`}/>
+                          <Text style={tailwind`text-base text-sky-600 font-bold`}>{limitStringLengthLink(selectedProfile.link)}</Text>
                         </TouchableOpacity>
                       </View>
                     : null

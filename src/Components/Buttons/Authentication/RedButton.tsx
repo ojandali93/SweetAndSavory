@@ -5,19 +5,20 @@ import tailwind from 'twrnc'
 
 interface RedButtonProps {
   submit: () => void,
-  loading: boolean
+  loading: boolean,
+  header: string
 }
 
-const RedButton: React.FC<RedButtonProps> = ({submit, loading}) => {
+const RedButton: React.FC<RedButtonProps> = ({submit, loading, header}) => {
   return (
     <>
       {
         loading
-            ? <TouchableOpacity onPress={() => {}} style={tailwind`flex flex-row justify-center items-center w-full py-3 bg-red-500 rounded-3`}>
+            ? <TouchableOpacity onPress={() => {}} style={tailwind`flex flex-row justify-center items-center w-full py-3 bg-sky-600 rounded-3`}>
                 <ActivityIndicator size={'small'} color={'white'}/>
               </TouchableOpacity>
-          : <TouchableOpacity onPress={submit} style={tailwind`flex flex-row justify-center items-center w-full py-3 bg-red-500 rounded-3`}>
-              <Text style={tailwind`text-lg font-bold text-white`}>Login</Text>
+          : <TouchableOpacity onPress={submit} style={tailwind`flex flex-row justify-center items-center w-full py-3 bg-sky-600 rounded-3`}>
+              <Text style={tailwind`text-lg font-bold text-white`}>{header}</Text>
             </TouchableOpacity>
       }
     </>

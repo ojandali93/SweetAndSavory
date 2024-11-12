@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import FixedTopLogin from '../../Components/Authentication/FixedTopLogin';
 import supabase from '../../Utils/supabase';
 import { Heart } from 'react-native-feather';
+import AuthInputSecure from '../../Components/Inputs/Authentication/AuthInputSecure';
 
 const SignupScreen = () => {
 
@@ -131,13 +132,12 @@ const SignupScreen = () => {
           <View style={tailwind`w-full flex flex-row`}>
             <View style={tailwind`w-1/2 pr-2`}>
               <AuthInput
-                icon='Type'
+                header='First Name'
                 valid={false}
                 validation={false}
                 placeholder='first name...'
                 placeholderColor='grey'
                 multi={false}
-                secure={false}
                 value={firstName}
                 onChange={setFirstName}
                 capitalization={false}
@@ -146,13 +146,12 @@ const SignupScreen = () => {
             </View>
             <View style={tailwind`w-1/2 pl-2`}>
               <AuthInput
-                icon='Type'
+                header='Last Name'
                 valid={false}
                 validation={false}
                 placeholder='last name...'
                 placeholderColor='grey'
                 multi={false}
-                secure={false}
                 value={lastName}
                 onChange={setLastName}
                 capitalization={false}
@@ -164,13 +163,12 @@ const SignupScreen = () => {
           {/* Username Input */}
           <View style={tailwind`mt-4`}>
             <AuthInput
-              icon='User'
+              header='Username'
               valid={validUsername}
               validation={username.length > 0 ? true : false}
               placeholder='Username...'
               placeholderColor='grey'
               multi={false}
-              secure={false}
               value={username}
               onChange={handleInputChange}
               capitalization={false}
@@ -180,13 +178,12 @@ const SignupScreen = () => {
 
           <View style={tailwind`mt-4`}>
             <AuthInput
-              icon='Mail'
+              header='Email'
               valid={validEmail}
               validation={true}
               placeholder='Email...'
               placeholderColor='grey'
               multi={false}
-              secure={false}
               value={email}
               onChange={validateEmail}
               capitalization={false}
@@ -196,40 +193,34 @@ const SignupScreen = () => {
 
           {/* Password Input */}
           <View style={tailwind`mt-4`}>
-            <AuthInput
-              icon='Lock'
+            <AuthInputSecure
+              header='Password'
               valid={validPassword}
               validation={true}
               placeholder='Password...'
               placeholderColor='grey'
-              multi={false}
-              secure={true}
               value={password}
               onChange={validatePassword}
-              capitalization={false}
               loading={false}
             />
           </View>
 
           <View style={tailwind`mt-4`}>
-            <AuthInput
-              icon='Lock'
+            <AuthInputSecure
+              header='Verify Password'
               valid={validPasswordAndVerify}
               validation={true}
               placeholder='Password...'
               placeholderColor='grey'
-              multi={false}
-              secure={true}
               value={verifyPassword}
               onChange={validateVerify}
-              capitalization={false}
               loading={false}
             />
           </View>
 
           {/* Login Button */}
           <View style={tailwind`mt-4`}>
-            <RedButton loading={false} submit={submitUserLogin}/>
+            <RedButton header='Login' loading={false} submit={submitUserLogin}/>
           </View>
 
           {/* Create Account Link */}

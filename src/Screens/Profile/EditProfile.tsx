@@ -240,7 +240,7 @@ const EditProfile = () => {
           <View style={tailwind`py-2 flex flex-row items-center justify-between`}>
             <Text style={tailwind`text-base px-2 font-bold`}>Public: </Text>
             <Switch
-              trackColor={{ false: '#767577', true: '#e94f4e' }}
+              trackColor={{ false: '#767577', true: '#0284c7' }}
               thumbColor={isPublic ? 'white' : 'white'}
               onValueChange={setIsPublic}
               value={isPublic}
