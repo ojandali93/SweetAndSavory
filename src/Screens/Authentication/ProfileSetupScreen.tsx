@@ -70,49 +70,38 @@ const ProfileSetupScreen = () => {
   ];
 
   const submitUserLogin = async () => {
+    setShowTerms(false)
     
-    const folderName = 'ProfilePictures'; 
-    const response = await fetch(profilePicture.uri);
-    const blob = await response.blob(); 
-    const fileKey = `${folderName}/${Date.now()}-${blob.data.name}`;
-
-    const storageRef = ref(storage, fileKey);
-    const snapshot = await uploadBytesResumable(storageRef, blob);
-  
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    if(downloadURL){
-      setShowTerms(false)
-      createUserAccount(username, email, password, firstName, lastName, downloadURL, bio, experience, navigation)
+    if(profilePicture != ''){
+      createUserAccount(username, email, password, firstName, lastName, profilePicture, bio, experience, navigation)
     } else {
       setShowTerms(false)
       createUserAccount(username, email, password, firstName, lastName, '', bio, experience, navigation)
     }
   }
 
-  const selectAnImage = () => {
-    launchImageLibrary({ mediaType: 'mixed' }, (response) => {
+  const selectAnImage = async () => {
+    launchImageLibrary({ mediaType: 'photo' }, (response) => {
       if (response.didCancel) {
       } else if (response.errorCode) {
-      } else if (response.assets && response.assets.length > 0) {
-        const asset = response.assets[0];
-
-        // Check the video duration
-        if (asset.duration && asset.duration > 60) {
-          Alert.alert("Video exceeds limit.", "Please select a video that is 60 seconds or less.");
-        } else {
-          const selectedFile = {
-            uri: asset.uri,
-            fileType: asset.type,
-          };
-          setProfilePicture(selectedFile)
-        }
+      } else if (response.assets) {
+        uploadImageToDatabase(response.assets[0].uri)
       }
     });
   };
 
-  // const acceptTerms = () => {
-  //   set
-  // }
+  const uploadImageToDatabase = async (url: string | undefined) => {
+    const folderName = 'ProfilePictures'; 
+    const profile = await fetch(url);
+    const blob = await profile.blob(); 
+    const fileKey = `${folderName}/${Date.now()}-${blob.data.name}`;
+
+    const storageRef = ref(storage, fileKey);
+    const snapshot = await uploadBytesResumable(storageRef, blob);
+  
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    setProfilePicture(downloadURL)
+  }
 
   return (
     <KeyboardAvoidingView

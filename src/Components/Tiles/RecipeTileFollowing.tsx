@@ -6,10 +6,12 @@ import { useNavigation } from '@react-navigation/native'
 import { useUser } from '../../Context/UserContext'
 import supabase from '../../Utils/supabase';
 import { useApp } from '../../Context/AppContext';
-import Verified from '../../Assets/POS-verified.png'
+import Verified from '../../Assets/POS-verified-blue.png'
+import Video from 'react-native-video';
 
 const imageWidth = Dimensions.get('screen').width
 const imageHeight = imageWidth - 86
+const videoHeight = Dimensions.get('screen').height * .6
 
 interface RecipeProps {
   recipe: any
@@ -27,6 +29,7 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
   const [reportType, setReportType] = useState<string>('')
   const [userLikes, setUserLikes] = useState<any[]>([])
   const [userComments, setRecipeComments] = useState<any[]>([])
+  const [loadingVideo, setLoadingVideo] = useState<boolean>(false)
 
   useEffect(() => {
     grabRecipeLikes()
@@ -240,11 +243,26 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
         </TouchableOpacity>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleDoubleTap}>
-        <View style={[tailwind`w-full rounded-3`, { height: imageHeight }]}>
-          <Image style={tailwind`w-full h-full rounded-3`} source={{ uri: recipe.main_image }} />
-        </View>
+        {
+          recipe.main_video
+            ? <View style={[tailwind`w-full rounded-3 overflow-hidden`, {height: videoHeight}]}>
+                <Video
+                  source={{ uri: recipe.main_video }}
+                  paused={false}
+                  style={[tailwind`w-full h-full rounded-3 overflow-hidden`]}
+                  resizeMode="cover"
+                  onLoadStart={() => setLoadingVideo(true)}
+                  onLoad={() => setLoadingVideo(false)}
+                  onError={(e) => console.log('Video error:', e)}
+                  repeat={true}
+                />
+              </View>
+            : <View style={[tailwind`w-full rounded-3`, { height: imageHeight }]}>
+                <Image style={tailwind`w-full h-full rounded-3`} source={{ uri: recipe.main_image }} />
+              </View>
+        }
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleDoubleTap} style={[tailwind`absolute z-15 w-full h-86 mt-14 flex flex-col justify-between py-4 px-3`, { height: imageHeight }]}>
+      <TouchableOpacity onPress={handleDoubleTap} style={[tailwind`absolute z-15 w-full mt-14 flex flex-col justify-between py-4 px-3`, { height: recipe.main_video ? videoHeight : imageHeight }]}>
         <View style={tailwind`flex flex-row justify-between`}>
           <Text style={tailwind`text-base font-bold text-white`}>Yield: {recipe.yield}</Text>
           <TouchableOpacity onPress={handleFavoriteToggle}>
@@ -274,11 +292,11 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
                     <View style={tailwind`bg-slate-700 rounded-2 mt-1 mb-3`}>
                       <TouchableOpacity onPress={() => {selectPostOption()}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
                         <File height={18} width={18} color={'white'}/>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Report Recipe</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Report Recipe</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {selectUserOption()}} style={tailwind`flex flex-row items-center p-2`}>
                         <User height={18} width={18} color={'white'}/>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Report User</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Report User</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -296,19 +314,19 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
                     </View>
                     <View style={tailwind`bg-slate-700 rounded-2 mt-1 mb-3`}>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'harassment') : reportUser(recipe.id, recipe.Profiles.user_id, 'harassment')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Harassment</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Harassment</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'violence') : reportUser(recipe.id, recipe.Profiles.user_id, 'violence')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Violence</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Violence</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'inappropriate') : reportUser(recipe.id, recipe.Profiles.user_id, 'inappropriate')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Inappropriate</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Inappropriate</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'false info') : reportUser(recipe.id, recipe.Profiles.user_id, 'false info')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>False Information</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>False Information</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'spam') : reportUser(recipe.id, recipe.Profiles.user_id, 'spam')}} style={tailwind`flex flex-row items-center p-2`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Spam</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Spam</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -317,7 +335,7 @@ const RecipeTileFollowing: React.FC<RecipeProps> = ({ recipe }) => {
             : null
         }
       </TouchableOpacity>
-      <View style={[tailwind`absolute z-10 opacity-50 w-full h-86 bg-slate-900 rounded-3 mt-14`, { height: imageHeight }]}></View>
+      <View style={[tailwind`absolute z-10 opacity-50 w-full bg-slate-900 rounded-3 mt-14`, { height: recipe.main_video ? videoHeight : imageHeight }]}></View>
       <View style={tailwind`w-full flex`}>
         <View style={tailwind`w-full h-12 flex flex-row items-center justify-between px-3`}>
           <View style={tailwind`flex flex-row items-center`}>

@@ -10,6 +10,7 @@ import FixedTopLogin from '../../Components/Authentication/FixedTopLogin';
 import supabase from '../../Utils/supabase';
 import { Heart } from 'react-native-feather';
 import AuthInputSecure from '../../Components/Inputs/Authentication/AuthInputSecure';
+import AuthInputValidation from '../../Components/Inputs/Authentication/AuthInputValidation';
 
 const SignupScreen = () => {
 
@@ -23,15 +24,18 @@ const SignupScreen = () => {
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null); 
 
   const [loadingUsernameSearch, setLoadingUsernameSearch] = useState<boolean>(false)
+  const [loadingEmailSearch, setLoadingEmailSearch] = useState<boolean>(false)
   const [validUsername, setValidUsername] = useState<boolean>(true)
+  const [availableUsername, setAvailableUsername] = useState<boolean>(true)
   const [validEmail, setValidEmail] = useState<boolean>(false)
+  const [availableEmail, setAvailableEmail] = useState<boolean>(true)
   const [validPassword, setValidPassword] = useState<boolean>(false)
   const [validPasswordAndVerify, setValidPasswordAndVerify] = useState<boolean>(false)
 
   const navigation = useNavigation()
 
   const submitUserLogin = () => {
-    if (validUsername && validPassword && validPasswordAndVerify && username.length > 0) {
+    if (validUsername && validEmail && availableEmail && availableUsername && validPassword && validPasswordAndVerify && username.length > 0) {
       // Reset all input fields to empty strings
       setUsername('');
       setPassword('');
@@ -67,10 +71,45 @@ const SignupScreen = () => {
     setValidPassword(hasUpperCase && hasLowerCase && hasNumber)
   }
 
-  const validateEmail = (data: string) => {
+  const checkValidEmail = async (data: string) => {
+    try {
+      const { data: emailData, error } = await supabase
+        .from('Profiles')
+        .select('*')
+        .ilike('email', data.toLowerCase());
+
+      if (error) {
+        console.error('Error fetching data:', error);
+        return;
+      }
+
+      if (emailData && emailData.length > 0) {
+        setAvailableEmail(false); // Username exists
+        setLoadingEmailSearch(false)
+      } else {
+        setAvailableEmail(true); // Username is available
+        setLoadingEmailSearch(false)
+      }
+    } catch (err) {
+      console.error('An error occurred while checking the username:', err);
+    }
+  }
+
+  const validateEmail = async (data: string) => {
     setEmail(data)
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(data);
     setValidEmail(emailRegex)
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+  
+    // Set a new timeout to check username after 1.5 seconds
+    setTypingTimeout(
+      setTimeout(() => {
+        checkValidEmail(data);
+      }, 1500)
+    );
   }
 
   const validateVerify = (data: string) => {
@@ -92,10 +131,10 @@ const SignupScreen = () => {
       }
 
       if (data && data.length > 0) {
-        setValidUsername(false); // Username exists
+        setAvailableUsername(false); // Username exists
         setLoadingUsernameSearch(false)
       } else {
-        setValidUsername(true); // Username is available
+        setAvailableUsername(true); // Username is available
         setLoadingUsernameSearch(false)
       }
     } catch (err) {
@@ -106,12 +145,18 @@ const SignupScreen = () => {
 
   // Function to handle user typing with debounce
   const handleInputChange = (value: string) => {
+  
     setUsername(value);
-
+  
+    // Check if the sanitized value is valid
+    const validUsername = /^[a-zA-Z0-9_]*$/.test(value);
+    setValidUsername(validUsername);
+  
+    // Clear previous timeout if typing continues
     if (typingTimeout) {
-      clearTimeout(typingTimeout); // Clear the previous timeout if typing continues
+      clearTimeout(typingTimeout);
     }
-
+  
     // Set a new timeout to check username after 1.5 seconds
     setTypingTimeout(
       setTimeout(() => {
@@ -162,10 +207,10 @@ const SignupScreen = () => {
 
           {/* Username Input */}
           <View style={tailwind`mt-4`}>
-            <AuthInput
+            <AuthInputValidation
               header='Username'
               valid={validUsername}
-              validation={username.length > 0 ? true : false}
+              validation={validUsername}
               placeholder='Username...'
               placeholderColor='grey'
               multi={false}
@@ -173,11 +218,12 @@ const SignupScreen = () => {
               onChange={handleInputChange}
               capitalization={false}
               loading={loadingUsernameSearch}
+              available={availableUsername}
             />
           </View>
 
           <View style={tailwind`mt-4`}>
-            <AuthInput
+            <AuthInputValidation
               header='Email'
               valid={validEmail}
               validation={true}
@@ -187,7 +233,8 @@ const SignupScreen = () => {
               value={email}
               onChange={validateEmail}
               capitalization={false}
-              loading={false}
+              loading={loadingEmailSearch}
+              available={availableEmail}
             />
           </View>
 

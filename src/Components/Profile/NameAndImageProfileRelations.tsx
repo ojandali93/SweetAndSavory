@@ -4,7 +4,7 @@ import tailwind from 'twrnc';
 import supabase from '../../Utils/supabase';
 import { useUser } from '../../Context/UserContext';
 import { useApp } from '../../Context/AppContext';
-import Verified from '../../Assets/POS-verified.png'
+import Verified from '../../Assets/POS-verified-blue.png'
 
 
 interface NameAndImageProps {
@@ -126,14 +126,14 @@ const NameAndImageProfileRelations: React.FC<NameAndImageProps> = ({ profile, fo
 
   return (
     <View style={tailwind`flex flex-row items-center justify-between`}>
-      <View style={tailwind`flex flex-row items-center`}>
+      <View style={tailwind`flex-1 flex flex-row items-center`}>
         <Image alt="Profile Picture" style={tailwind`h-18 w-18 bg-stone-300 rounded-full`} source={{ uri: profile.profile_picture }} />
-        <View style={tailwind`ml-4`}>
+        <View style={tailwind`flex-1 ml-4`}>
           <View style={tailwind`flex flex-row items-center`}>
             <Text style={tailwind`text-xl font-semibold`}>{profile.username}</Text>
             {
               profile.verified 
-                ? <Image style={tailwind`ml-4 h-6 w-6`} source={Verified}/>
+                ? <Image style={tailwind`ml-2 h-4 w-4`} source={Verified}/>
                 : null
             }
           </View>

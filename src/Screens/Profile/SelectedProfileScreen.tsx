@@ -347,35 +347,35 @@ const SelectedProfileScreen = () => {
                       <View style={tailwind`bg-slate-700 rounded-2 mt-5 mb-3`}>
                         <TouchableOpacity onPress={() => {setIsCategoryVisible(!isCateogryVisible)}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
                           <Flag height={18} width={18} color={'white'}/>
-                          <Text style={tailwind`text-white text-base font-white ml-2`}>Report User</Text>
+                          <Text style={tailwind`text-white text-base  ml-2`}>Report User</Text>
                         </TouchableOpacity>
                         {
                           isCateogryVisible
                             ? <View>
                                 <TouchableOpacity onPress={() => {reportUser(selectedProfile.user_id, 'Harassment')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950 pl-10`}>
-                                  <Text style={tailwind`text-white text-base font-white ml-2`}>Harassment</Text>
+                                  <Text style={tailwind`text-white text-base  ml-2`}>Harassment</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {reportUser(selectedProfile.user_id, 'Inappropriate')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950 pl-10`}>
-                                  <Text style={tailwind`text-white text-base font-white ml-2`}>Inappropriate</Text>
+                                  <Text style={tailwind`text-white text-base  ml-2`}>Inappropriate</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {reportUser(selectedProfile.user_id, 'Violence')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950 pl-10`}>
-                                  <Text style={tailwind`text-white text-base font-white ml-2`}>Violence</Text>
+                                  <Text style={tailwind`text-white text-base  ml-2`}>Violence</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {reportUser(selectedProfile.user_id, 'Bullying')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950 pl-10`}>
-                                  <Text style={tailwind`text-white text-base font-white ml-2`}>Bullying</Text>
+                                  <Text style={tailwind`text-white text-base  ml-2`}>Bullying</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {reportUser(selectedProfile.user_id, 'Spam')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950 pl-10`}>
-                                  <Text style={tailwind`text-white text-base font-white ml-2`}>Spam</Text>
+                                  <Text style={tailwind`text-white text-base  ml-2`}>Spam</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {reportUser(selectedProfile.user_id, 'False Information')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950 pl-10`}>
-                                  <Text style={tailwind`text-white text-base font-white ml-2`}>False Information</Text>
+                                  <Text style={tailwind`text-white text-base  ml-2`}>False Information</Text>
                                 </TouchableOpacity>
                               </View>
                             : null
                         }
                         <TouchableOpacity onPress={() => {blockUser()}} style={tailwind`flex flex-row items-center p-2`}>
                           <UserX height={18} width={18} color={'white'}/>
-                          <Text style={tailwind`text-white text-base font-white ml-2`}>Block User</Text>
+                          <Text style={tailwind`text-white text-base  ml-2`}>Block User</Text>
                         </TouchableOpacity>
                       </View>
                     </View>

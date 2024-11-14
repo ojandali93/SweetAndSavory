@@ -15,9 +15,10 @@ interface AuthInputProps {
   loading: boolean;
   capitalization: boolean;
   header: string,
+  available: boolean,
 }
 
-const AuthInput: React.FC<AuthInputProps> = ({
+const AuthInputValidation: React.FC<AuthInputProps> = ({
   validation,
   valid,
   multi,
@@ -28,6 +29,7 @@ const AuthInput: React.FC<AuthInputProps> = ({
   capitalization,
   loading,
   header,
+  available
 }) => {
 
   return (
@@ -43,7 +45,7 @@ const AuthInput: React.FC<AuthInputProps> = ({
           style={tailwind`border-b-2 border-b-black pb-.5 font-bold text-base px-1 flex-1`}
           autoCapitalize={capitalization ? 'sentences' : 'none'}
         />
-        {validation && (
+        {available && value.length > 0 && (
           loading ? (
             <ActivityIndicator size={'small'} color={'black'} />
           ) : (
@@ -51,8 +53,24 @@ const AuthInput: React.FC<AuthInputProps> = ({
           )
         )}
       </View>
+      {
+        value.length < 1
+          ? null
+          : available
+              ? null
+              : <Text>{header} is already associated with an account</Text>
+      }
+      {
+        value.length < 1
+          ? null
+          : validation
+              ? null
+              : header === 'Username'
+                  ? <Text>{header} can only contain a-z, A-Z, 0-9, and (_)</Text>
+                  : <Text>{header} must be a valid email</Text>
+      }
     </View>
   );
 };
 
-export default AuthInput;
+export default AuthInputValidation;

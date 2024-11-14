@@ -1,7 +1,7 @@
 import React from 'react'
 import { Image, Text, View } from 'react-native'
 import tailwind from 'twrnc'
-import Verified from '../../Assets/POS-verified.png'
+import Verified from '../../Assets/POS-verified-blue.png'
 
 interface NameAndImageProps {
   username: string,

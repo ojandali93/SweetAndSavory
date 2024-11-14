@@ -288,7 +288,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }
       }
     } catch (err) {
-      console.error('An error occurred while fetching recipes:', err);
+      console.log('An error occurred while fetching recipes:', err);
     }
   }
 
@@ -300,7 +300,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       });
   
       if (error) {
-        console.error('Login error:', error.message);
+        console.log('Login error:', error.message);
         setLoggingIn(false)
         if(error.message === 'Email not confirmed'){
           Alert.alert('Account Confirmation', 'Please check your email and confirm your account before logging in.');
@@ -312,7 +312,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         getUserProfileLogin(username, navigation, data.user, screen)
       }
     } catch (err) {
-      console.error('Error logging in:', err.message);
+      console.log('Error logging in:', err.message);
       setLoggingIn(false)
       Alert.alert('An error occurred', 'Please try again later.');
     }

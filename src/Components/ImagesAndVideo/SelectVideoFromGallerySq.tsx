@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { Alert, Image, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Dimensions, Image, Text, TouchableOpacity, View } from 'react-native'
 import { Camera, Pause, Play, Plus, RefreshCw, X, Video as VideoIcon, ChevronRight, Maximize } from 'react-native-feather'
 import { launchImageLibrary } from 'react-native-image-picker'
 import Video from 'react-native-video'
 import tailwind from 'twrnc'
+
+const screenHeight = Dimensions.get('screen').height
 
 interface SelectImageProps {
   video: any,
@@ -52,7 +54,7 @@ const SelectVideoFromGallerySq: React.FC<SelectImageProps> = ({video, updateVide
               </TouchableOpacity>
               <Video
                 source={{ uri: video.uri }} // Ensure video_url exists and is valid
-                style={tailwind`w-full h-92 rounded-2 overflow-hidden`}
+                style={[tailwind`w-full rounded-2 overflow-hidden`, {height: screenHeight * .7}]}
                 paused={!isVideoPlaying} // Control video play/pause
                 resizeMode="cover"
                 onError={(error: any) => console.log('Video error:', error)} // Handle error
@@ -62,12 +64,12 @@ const SelectVideoFromGallerySq: React.FC<SelectImageProps> = ({video, updateVide
               />
               <View style={tailwind`absolute z-10 flex-1 top-12 bottom-0 left-0 right-0 p-4 flex justify-between`}>
                 <View style={tailwind`flex flex-row justify-between`}>
-                  <TouchableOpacity onPress={() => {updateVideo(null)}} style={tailwind`h-10 w-10 bg-stone-400 rounded-full flex justify-center items-center opacity-80`}>
-                    <X height={20} width={20} color={'white'}/>
+                  <TouchableOpacity onPress={() => {updateVideo(null)}} style={tailwind`h-8 w-8 bg-stone-400 rounded-full flex justify-center items-center bg-opacity-80`}>
+                    <X height={15} width={15} color={'white'}/>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={maximize} style={tailwind`h-10 w-10 bg-stone-400 rounded-full flex justify-center items-center opacity-80`}>
+                  {/* <TouchableOpacity onPress={maximize} style={tailwind`h-10 w-10 bg-stone-400 rounded-full flex justify-center items-center opacity-80`}>
                     <Maximize height={20} width={20} color={'white'}/>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
                 <View style={tailwind`w-full flex flex-row justify-center`}>
                   {isVideoPlaying 

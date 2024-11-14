@@ -5,7 +5,7 @@ import tailwind from 'twrnc'
 import { useNavigation } from '@react-navigation/native'
 import { useUser } from '../../Context/UserContext'
 import supabase from '../../Utils/supabase';
-import Verified from '../../Assets/POS-verified.png'
+import Verified from '../../Assets/POS-verified-blue.png'
 
 const imageWidth = Dimensions.get('screen').width
 const imageHeight = imageWidth - 86
@@ -214,7 +214,7 @@ const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
       <TouchableOpacity onPress={() => showOptions || showReason ? closeOptions() : navigation.navigate('SelectedProfileScreen', { user_id: recipe.user_profile.user_id })} style={tailwind`w-full h-14 flex flex-row justify-between items-center px-2`}>
         <View style={tailwind`flex-1 h-full flex flex-row items-center`}>
           <Image style={tailwind`h-10 w-10 rounded-full border-2 border-stone-400`} source={{ uri: recipe.user_profile.profile_picture }} />
-          <View style={tailwind`ml-2`}>
+          <View style={tailwind`ml-2  flex flex-row items-center`}>
             <Text style={tailwind`font-bold text-base`}>{recipe.user_profile.username}</Text>
             {
               recipe.user_profile.verified 
@@ -262,11 +262,11 @@ const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
                     <View style={tailwind`bg-slate-700 rounded-2 mt-1 mb-3`}>
                       <TouchableOpacity onPress={() => {selectPostOption()}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
                         <File height={18} width={18} color={'white'}/>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Report Recipe</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Report Recipe</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {selectUserOption()}} style={tailwind`flex flex-row items-center p-2`}>
                         <User height={18} width={18} color={'white'}/>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Report User</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Report User</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -284,19 +284,19 @@ const RecipeTile: React.FC<RecipeProps> = ({ recipe }) => {
                     </View>
                     <View style={tailwind`bg-slate-700 rounded-2 mt-1 mb-3`}>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'harassment') : reportUser(recipe.id, recipe.Profiles.user_id, 'harassment')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Harassment</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Harassment</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'violence') : reportUser(recipe.id, recipe.Profiles.user_id, 'violence')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Violence</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Violence</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'inappropriate') : reportUser(recipe.id, recipe.Profiles.user_id, 'inappropriate')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Inappropriate</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Inappropriate</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'false info') : reportUser(recipe.id, recipe.Profiles.user_id, 'false info')}} style={tailwind`flex flex-row items-center p-2 border-b-2 border-b-slate-950`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>False Information</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>False Information</Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => {reportType === 'post' ? reportPost(recipe.id, 'spam') : reportUser(recipe.id, recipe.Profiles.user_id, 'spam')}} style={tailwind`flex flex-row items-center p-2`}>
-                        <Text style={tailwind`text-white text-base font-white ml-2`}>Spam</Text>
+                        <Text style={tailwind`text-white text-base  ml-2`}>Spam</Text>
                       </TouchableOpacity>
                     </View>
                   </View>

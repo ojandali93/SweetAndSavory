@@ -6,6 +6,7 @@ import AuthInput from '../../Components/Inputs/Authentication/AuthInput';
 import RedButton from '../../Components/Buttons/Authentication/RedButton';
 import { useUser } from '../../Context/UserContext';
 import { useNavigation } from '@react-navigation/native';
+import AuthInputSecure from '../../Components/Inputs/Authentication/AuthInputSecure';
 
 const LoginScreen = () => {
 
@@ -30,13 +31,12 @@ const LoginScreen = () => {
           {/* Username Input */}
           <View style={tailwind``}>
             <AuthInput
-              icon='User'
+              header='Username'
               valid={false}
               validation={false}
               placeholder='Username...'
               placeholderColor='grey'
               multi={false}
-              secure={false}
               value={username}
               onChange={setUsername}
               loading={false}
@@ -46,18 +46,15 @@ const LoginScreen = () => {
 
           {/* Password Input */}
           <View style={tailwind`mt-4`}>
-            <AuthInput
-              icon='Lock'
+            <AuthInputSecure
+              header='Password'
               valid={false}
               validation={false}
               placeholder='Password...'
               placeholderColor='grey'
-              multi={false}
-              secure={true}
               value={password}
               onChange={setPassword}
               loading={false}
-              capitalization={false}
             />
           </View>
 

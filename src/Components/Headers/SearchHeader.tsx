@@ -4,7 +4,7 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { Search, X } from 'react-native-feather'
 import { TextInput } from 'react-native-gesture-handler'
 import tailwind from 'twrnc'
-import Verified from '../../Assets/POS-verified.png'
+import Verified from '../../Assets/POS-verified-blue.png'
 
 interface SearchHeaderProps {
   searchTerm: string,

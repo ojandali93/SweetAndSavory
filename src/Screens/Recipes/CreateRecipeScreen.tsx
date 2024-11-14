@@ -82,13 +82,13 @@ const CreateRecipeScreen = () => {
   }
 
   const addIngredientInput = () => {
-    const newIngredient = { id: generateRandomCode(), amount: '', item: ''};
+    const newIngredient = { id: generateRandomCode(), item: ''};
     setIngredients([...ingredients, newIngredient]);
   };
 
-  const handleIngredientChange = (id: string, amount: string, item: string) => {
+  const handleIngredientChange = (id: string, item: string) => {
     const updatedIngredients = ingredients.map((ingredient) =>
-      ingredient.id === id ? {id: id, amount: amount, item: item} : ingredient
+      ingredient.id === id ? {id: id, item: item} : ingredient
     );
     setIngredients(updatedIngredients);
   };
@@ -234,7 +234,6 @@ const CreateRecipeScreen = () => {
           .insert([
             {
               item: ingredient.item,
-              amount: ingredient.amount,
               recipe_id: recipe_id,         
               optional: false,    
             }
