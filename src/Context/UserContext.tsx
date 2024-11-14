@@ -36,7 +36,7 @@ interface UserContextType {
   ) => void,
   creatingProfile: boolean,
   loggingIn: boolean,
-  loginUser: (username: string, password: string, navigation: any, screen: stringa) => void
+  loginUser: (username: string, password: string, navigation: any, screen: string) => void
   getUserLists: (user_id: string) => void,
   userLists: any[],
   getListRecipes: (list_id: number) => void
