@@ -249,6 +249,7 @@ const SignupScreen = () => {
               value={password}
               onChange={validatePassword}
               loading={false}
+              isPassword={true}
             />
           </View>
 

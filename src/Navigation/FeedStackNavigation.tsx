@@ -12,6 +12,7 @@ import AddRecipeToList from '../Screens/Recipes/AddRecipeToList';
 import FavoritesScreen from '../Screens/Feed/FavoritesScreen';
 import NotificationScreen from '../Screens/Feed/NotificationScreen';
 import ResetPasswordScreen from '../Screens/Authentication/ResetPasswordScreen';
+import ShareScreen from '../Screens/Feed/ShareScreen';
 
 export type FeedStackParamList = {
   FeedScreen: undefined;
@@ -25,6 +26,7 @@ export type FeedStackParamList = {
   FavoritesScreen: undefined;
   NotificationScreen: undefined;
   ResetPasswordScreen: {email: string, token: string}
+  ShareScreen: undefined
 };
 
 const StackNav = createStackNavigator<FeedStackParamList>();
@@ -45,6 +47,7 @@ const FeedStackNavigation = () => {
         <StackNav.Screen name="FavoritesScreen" component={FavoritesScreen} />
         <StackNav.Screen name="NotificationScreen" component={NotificationScreen} />
         <StackNav.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
+        <StackNav.Screen name="ShareScreen" component={ShareScreen} />
     </StackNav.Navigator>
   );
 };

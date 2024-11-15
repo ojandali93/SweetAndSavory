@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Image, Alert, Switch, Modal, Touchable } from 'react-native';
+import { Text, View, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Image, Alert, Switch, Modal, Touchable, ActivityIndicator } from 'react-native';
 import tailwind from 'twrnc';
 import TopLogin from '../../Components/Authentication/TopLogin';
 import AuthInput from '../../Components/Inputs/Authentication/AuthInput';
@@ -33,6 +33,8 @@ const ProfileSetupScreen = () => {
 
   const [showTerms, setShowTerms] = useState<boolean>(false)
   const [acceptTerms, setAcceptTerms] = useState<boolean>(false)
+
+  const [loadingImage, setLoadingImage] = useState<boolean>(false)
 
   const cookingSkillLevels = [
     {
@@ -85,12 +87,14 @@ const ProfileSetupScreen = () => {
       if (response.didCancel) {
       } else if (response.errorCode) {
       } else if (response.assets) {
+        setLoadingImage(true)
         uploadImageToDatabase(response.assets[0].uri)
       }
     });
   };
 
   const uploadImageToDatabase = async (url: string | undefined) => {
+
     const folderName = 'ProfilePictures'; 
     const profile = await fetch(url);
     const blob = await profile.blob(); 
@@ -100,6 +104,7 @@ const ProfileSetupScreen = () => {
     const snapshot = await uploadBytesResumable(storageRef, blob);
   
     const downloadURL = await getDownloadURL(snapshot.ref);
+    setLoadingImage(false)
     setProfilePicture(downloadURL)
   }
 
@@ -114,11 +119,17 @@ const ProfileSetupScreen = () => {
 
           <View style={tailwind`w-full flex flex-row justify-start items-center`}>
             {
-              profilePicture && profilePicture.uri
-                ? <Image style={tailwind`h-24 w-24 bg-stone-400 rounded-full`} alt='profilePicture' source={{uri: profilePicture.uri}} />
-                : <TouchableOpacity onPress={() => {selectAnImage()}} style={tailwind`h-24 w-24 bg-stone-400 rounded-full flex justify-center items-center`}>
-                    <Plus height={24} width={24} color={'black'}/>
-                  </TouchableOpacity>
+              loadingImage 
+                ? <View style={tailwind`h-24 w-24 bg-stone-400 rounded-full flex justify-center items-center`}>
+                    <ActivityIndicator size={'large'} color={'black'}/>
+                  </View>
+                : profilePicture != ''
+                    ? <TouchableOpacity onPress={() => {selectAnImage()}}>
+                        <Image style={tailwind`h-24 w-24 bg-stone-400 rounded-full border-2 border-slate-500`} alt='profilePicture' source={{uri: profilePicture}} />
+                      </TouchableOpacity>
+                    : <TouchableOpacity onPress={() => {selectAnImage()}} style={tailwind`h-24 w-24 bg-stone-400 rounded-full flex justify-center items-center`}>
+                        <Plus height={24} width={24} color={'black'}/>
+                      </TouchableOpacity>
             }
             <View style={tailwind`ml-4`}>
               <Text style={tailwind`text-lg font-bold`}>{username}</Text>

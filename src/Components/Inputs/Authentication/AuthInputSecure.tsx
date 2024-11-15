@@ -13,6 +13,7 @@ interface AuthInputProps {
   value: string;
   onChange: (data: string) => void;
   loading: boolean;
+  isPassword?: boolean
 }
 
 const AuthInputSecure: React.FC<AuthInputProps> = ({
@@ -24,6 +25,7 @@ const AuthInputSecure: React.FC<AuthInputProps> = ({
   value,
   onChange,
   loading,
+  isPassword
 }) => {
 
   return (
@@ -46,6 +48,11 @@ const AuthInputSecure: React.FC<AuthInputProps> = ({
           )
         )}
       </View>
+      {
+        isPassword
+          ? <Text style={tailwind`text-sm`}>Must include 8+ chars, 1 capital, and 1 number</Text>
+          : null
+      }
     </View>
   );
 };

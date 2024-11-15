@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Bell, Bookmark, ChevronLeft, Heart, MoreHorizontal, PlusSquare } from 'react-native-feather';
+import { Bell, Bookmark, ChevronLeft, Heart, MoreHorizontal, PlusSquare, Send } from 'react-native-feather';
 import tailwind from 'twrnc';
 
 interface StandardHeaderProps {
@@ -22,7 +22,9 @@ interface StandardHeaderProps {
   activeFavorites?: boolean,
   activeFavoritesStatus?: boolean,
   addFavorite?: () => void,
-  removeFavofite?: () => void
+  removeFavofite?: () => void,
+  share?: boolean,
+  shareClick?: () => void,
 }
 
 const StandardHeader: React.FC<StandardHeaderProps> = (
@@ -44,7 +46,9 @@ const StandardHeader: React.FC<StandardHeaderProps> = (
     activeFavorites,
     activeFavoritesStatus,
     addFavorite,
-    removeFavofite
+    removeFavofite,
+    share,
+    shareClick
   }
 ) => {
 
@@ -116,6 +120,19 @@ const StandardHeader: React.FC<StandardHeaderProps> = (
               style={tailwind`ml-4`}
             >
               <Heart 
+                height={24} 
+                width={24} 
+                color={'white'} // Filled heart if liked, outlined if not
+                fill={likeStatus ? 'white' : 'none'} // Outline or filled based on status
+              />
+            </TouchableOpacity>
+          )}
+          {share && (
+            <TouchableOpacity 
+              onPress={shareClick} 
+              style={tailwind`ml-4`}
+            >
+              <Send 
                 height={24} 
                 width={24} 
                 color={'white'} // Filled heart if liked, outlined if not

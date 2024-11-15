@@ -42,9 +42,11 @@ const FeedScreen = () => {
   const [resetModalVisible, setResetModalVisible] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
 
-  const submitUserLoginFeed = useCallback(() => {
-    loginUser(username, password, navigation, 'FeedScreen');
-  }, [loginUser, navigation, username, password]);
+  const submitUserLoginFeed = () => {
+    loginUser(username, password, navigation, 'ListScreen');
+    setUsername('')
+    setPassword('')
+  };
 
   const goToAddRecipes = useCallback(() => {
     if (!currentProfile) {
@@ -108,6 +110,7 @@ const FeedScreen = () => {
             notificationsClick={() => {}}
             favorites={true}
             favoritesClick={() => {}}
+
           />
           <View style={tailwind`p-2`}>
             <TemplateRecipe />
@@ -178,8 +181,8 @@ const FeedScreen = () => {
         addClick={goToAddRecipes}
         notifications={true}
         notificationsClick={() => {}}
-        favorites={true}
-        favoritesClick={() => navigation.navigate('FavoritesScreen')}
+        share={true}
+        shareClick={() => {navigation.navigate('ShareScreen')}}
       />
       <View style={tailwind`flex-1`}>
         {fetchingFollowing ? (

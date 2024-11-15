@@ -21,6 +21,8 @@ const ListDetailsScreen = () => {
   const route = useRoute<SingleRecipeRouteProp>();
   const { list } = route.params;
 
+  console.log('list: ', list)
+
   const {listMembers, getListMembers} = useList()
   const { createNotification } = useApp()
   const { currentProfile, generateNotification } = useUser()
@@ -115,17 +117,17 @@ const ListDetailsScreen = () => {
   return (
     <View style={tailwind`flex-1 bg-white`}>
       <StandardHeader 
-        header={`${limitStringSize(list.title)} Details`}
+        header={`${limitStringSize(list.collection.title)} Details`}
         back={true}
       />
       <View style={tailwind`flex-1 bg-white p-2`}>
         <View style={tailwind`w-full h-80`}>
-          <Image style={tailwind`flex-1 rounded-2` } source={{uri: list.main_image}}/>
+          <Image style={tailwind`flex-1 rounded-2` } source={{uri: list.collection.main_image}}/>
         </View>
         <View style={tailwind`absolute z-10 w-full h-80 bg-stone-800 opacity-50 top-2 left-2 rounded-2`}/>
         <View style={tailwind`absolute z-15 w-full h-80 top-2 left-2 flex justify-end px-4 py-5`}>
-          <Text style={tailwind`text-2xl text-white font-bold mb-2`}>{list.title}</Text>
-          <Text style={tailwind`text-base text-white font-semibold`}>{list.description}</Text>
+          <Text style={tailwind`text-2xl text-white font-bold mb-2`}>{list.collection.title}</Text>
+          <Text style={tailwind`text-base text-white font-semibold`}>{list.collection.description}</Text>
         </View>
         <View style={tailwind`flex-1`}>
 

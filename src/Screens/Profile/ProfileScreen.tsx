@@ -36,7 +36,9 @@ const ProfileScreen = () => {
   const [resetEmail, setResetEmail] = useState('');
 
   const submitUserLoginFeed = () => {
-    loginUser(username, password, navigation, 'ProfileScreen');
+    loginUser(username, password, navigation, 'ListScreen');
+    setUsername('')
+    setPassword('')
   };
 
   const handlePasswordReset = async () => {

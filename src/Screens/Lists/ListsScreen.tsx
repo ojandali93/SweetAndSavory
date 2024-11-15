@@ -44,6 +44,8 @@ const ListsScreen = () => {
 
   const submitUserLoginFeed = () => {
     loginUser(username, password, navigation, 'ListScreen');
+    setUsername('')
+    setPassword('')
   };
 
   const goToAddList = () => {
@@ -123,7 +125,7 @@ const ListsScreen = () => {
             />
           ) : (
             <View style={tailwind`flex-1 flex justify-center items-center`}>
-              <Text style={tailwind`font-semibold text-xl`}>No lists found.</Text>
+              <Text style={tailwind`font-semibold text-xl`}>No collections found.</Text>
             </View>
           )}
         </View>

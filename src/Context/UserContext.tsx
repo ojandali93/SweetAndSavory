@@ -155,16 +155,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email,        
         password: password, 
-        options: {
-          data: {
-            username: username
-          }
-        }
       });
       if (signUpError) {
         console.error('Error signing up:', signUpError.message);
-        return;
+        Alert.alert('Signup Error', 'There was an error creating your account. Please try again later or contact support')
       }
+      console.log('respone data: ', data)
       createUsersProfile(username, email, firstName, lastName, profilePic, bio, experience, navigation, data.user)
     } catch (error) {
       console.error('there was an error creating the users account: ', error)
@@ -214,11 +210,54 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error('Error creating profile:', profileError.message);
         return;
       }
-
-      getUserProfile(navigation, username, user)
-
+      createUserFavoriteCollection(navigation, username, user)
     } catch (err) {
       console.error('An error occurred while creating an account:', err);
+    }
+  }
+
+  const createUserFavoriteCollection = async (navigation: any, username: any, user: any) => {
+    try {
+      const { data: collectionData, error: profileError } = await supabase
+        .from('Collections')
+        .insert([
+          {
+            user_id: user.id,  // Make sure this maps to user_id in the DB
+            title: "Favorites",
+            description: `All of your favorite recipes`,
+            main_image: 'https://firebasestorage.googleapis.com/v0/b/pinchofsalt-ffc9d.appspot.com/o/CollectionImages%2FDWM-icon-bg-blue-white.png?alt=media&token=5e8f0e51-6948-42cb-b561-0bc919cdf9bf',
+            is_public: false,
+          },
+        ]).select();
+        if (profileError) {
+          console.error('Error creating profile:', profileError.message);
+          return;
+        }
+        addFavoriteCollectionMember(navigation, username, user, collectionData)
+    } catch(error) {
+      console.error('Error creating a default list: ', error)
+    }
+  }
+
+  const addFavoriteCollectionMember = async (navigation: any, username: any, user: any, collectionData: any) => {
+    try {
+      const { error: profileError } = await supabase
+        .from('Members')
+        .insert([
+          {
+            member_id: user.id,  // Make sure this maps to user_id in the DB
+            collection_id: collectionData[0].id,
+            status: `owner`,
+            is_default: true
+          },
+        ]);
+        if (profileError) {
+          console.error('Error creating profile:', profileError.message);
+          return;
+        }
+        getUserProfile(navigation, username, user)
+    } catch(error) {
+      console.error('Error creating a default list: ', error)
     }
   }
 
@@ -231,8 +270,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if (error) {
         console.error('Error fetching data:', error);
       }
-      setCurrentProfile(data)
-      setCurrentUser(user)
       setCreatingProfile(false)
       Alert.alert(
         'Account Setup',
@@ -240,7 +277,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         [
           {
             text: 'OK',
-            onPress: () => navigation.navigate('LoginScreen'), // Navigate to the next screen
+            onPress: () => navigation.navigate('FeedScreen'), // Navigate to the next screen
           },
         ]
       );
