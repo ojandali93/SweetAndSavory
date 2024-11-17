@@ -48,6 +48,10 @@ const ListsScreen = () => {
     setPassword('')
   };
 
+  const handleUsername = (data: string) => {
+    setUsername(data.toLocaleLowerCase())
+  }
+
   const goToAddList = () => {
     currentProfile
       ? navigation.navigate('CreateListScreen')
@@ -166,7 +170,7 @@ const ListsScreen = () => {
               placeholderColor="grey"
               multi={false}
               value={username}
-              onChange={setUsername}
+              onChange={handleUsername}
               loading={false}
               capitalization={false}
             />

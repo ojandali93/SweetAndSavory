@@ -41,6 +41,10 @@ const ProfileScreen = () => {
     setPassword('')
   };
 
+  const handleUsername = (data: string) => {
+    setUsername(data.toLocaleLowerCase())
+  }
+
   const handlePasswordReset = async () => {
     if (!resetEmail) {
       Alert.alert('Error', 'Please enter your email.');
@@ -125,7 +129,7 @@ const ProfileScreen = () => {
                   placeholderColor="grey"
                   multi={false}
                   value={username}
-                  onChange={setUsername}
+                  onChange={handleUsername}
                   loading={false}
                   capitalization={false}
                 />

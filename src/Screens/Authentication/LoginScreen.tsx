@@ -20,6 +20,10 @@ const LoginScreen = () => {
     loginUser(username.toLowerCase(), password, navigation, 'ProfileScreen')
   }
 
+  const handleUsername = (data: string) => {
+    setUsername(data.toLocaleLowerCase())
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Adjusts based on the platform
@@ -38,7 +42,7 @@ const LoginScreen = () => {
               placeholderColor='grey'
               multi={false}
               value={username}
-              onChange={setUsername}
+              onChange={handleUsername}
               loading={false}
               capitalization={false}
             />

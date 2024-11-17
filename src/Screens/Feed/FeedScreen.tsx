@@ -48,6 +48,10 @@ const FeedScreen = () => {
     setPassword('')
   };
 
+  const handleUsername = (data: string) => {
+    setUsername(data.toLocaleLowerCase())
+  }
+
   const goToAddRecipes = useCallback(() => {
     if (!currentProfile) {
       Alert.alert(
@@ -133,7 +137,7 @@ const FeedScreen = () => {
               placeholderColor="grey"
               multi={false}
               value={username}
-              onChange={setUsername}
+              onChange={handleUsername}
               loading={false}
               capitalization={false}
             />

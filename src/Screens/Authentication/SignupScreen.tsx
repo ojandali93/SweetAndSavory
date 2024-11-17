@@ -58,11 +58,6 @@ const SignupScreen = () => {
     }
   };
 
-  const validateUsername = (data: string) => {
-    setUsername(data)
-    setValidUsername(false)
-  }
-
   const validatePassword = (data: string) => {
     setPassword(data)
     const hasUpperCase = /[A-Z]/.test(data);
@@ -146,7 +141,7 @@ const SignupScreen = () => {
   // Function to handle user typing with debounce
   const handleInputChange = (value: string) => {
   
-    setUsername(value);
+    setUsername(value.toLowerCase());
   
     // Check if the sanitized value is valid
     const validUsername = /^[a-zA-Z0-9_]*$/.test(value);
