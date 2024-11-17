@@ -46,7 +46,7 @@ const SignupScreen = () => {
   
       // Navigate to ProfileSetupScreen with parameters
       navigation.navigate('ProfileSetupScreen', {
-        username, 
+        username: username.toLowerCase(), 
         firstName, 
         lastName,
         email,
