@@ -43,7 +43,7 @@ const ListsScreen = () => {
   const [resetEmail, setResetEmail] = useState('');
 
   const submitUserLoginFeed = () => {
-    loginUser(username, password, navigation, 'ListScreen');
+    loginUser(username.toLowerCase(), password, navigation, 'ListScreen');
     setUsername('')
     setPassword('')
   };

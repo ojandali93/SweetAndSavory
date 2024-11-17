@@ -43,7 +43,7 @@ const FeedScreen = () => {
   const [resetEmail, setResetEmail] = useState('');
 
   const submitUserLoginFeed = () => {
-    loginUser(username, password, navigation, 'ListScreen');
+    loginUser(username.toLowerCase(), password, navigation, 'ListScreen');
     setUsername('')
     setPassword('')
   };
@@ -110,6 +110,7 @@ const FeedScreen = () => {
             notificationsClick={() => {}}
             favorites={true}
             favoritesClick={() => {}}
+            share={true}
           />
           <View style={tailwind`p-2`}>
             <TemplateRecipe />

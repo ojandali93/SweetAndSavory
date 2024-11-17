@@ -15,6 +15,8 @@ import ScrollSelect from '../../Components/Inputs/Content/ScrollSelect';
 import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../../Utils/firebaseConfig';
 import Video from 'react-native-video';
+import CheckBox from '@react-native-community/checkbox';
+
 
 type SingleRecipeRouteProp = RouteProp<AuthStackParamList, 'ProfileSetupScreen'>;
 
@@ -244,10 +246,14 @@ By creating an account, you acknowledge that you have read, understood, and agre
 
                 `}</Text>
               </ScrollView>
-              <TouchableOpacity onPress={() => {setAcceptTerms(!acceptTerms)}} style={tailwind`w-full flex flex-row items-center justify-between py-2 mt-3`}>
+              <View style={tailwind`w-full flex flex-row items-center justify-between py-2 mt-3`}>
+                <CheckBox
+                  disabled={false}
+                  value={acceptTerms}
+                  onValueChange={(newValue) => setAcceptTerms(!acceptTerms)}
+                />
                 <Text style={tailwind`text-base font-bold underline`}>Accept Terms & Services</Text>
-                <Check height={20} width={20} color={acceptTerms ? 'green' : 'red'}/>
-              </TouchableOpacity>
+              </View>
               {
                 acceptTerms
                   ? <TouchableOpacity onPress={() => {submitUserLogin()}} style={tailwind`w-full p-3 bg-sky-600 rounded-2 flex flex-row justify-center mt-3`}>
