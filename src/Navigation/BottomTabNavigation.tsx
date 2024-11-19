@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
-import { Activity, Bookmark, BookOpen, Globe, Grid, List, Menu, Plus, PlusSquare, Search, User } from 'react-native-feather';
+import { Activity, Bookmark, BookOpen, Globe, Grid, Home, List, Menu, Plus, PlusSquare, Search, User } from 'react-native-feather';
 import { View } from 'react-native';
 import SearchScreen from '../Screens/Search/SearchScreen'
 import LoginScreen from '../Screens/Authentication/LoginScreen';
@@ -51,6 +51,7 @@ const BottomTabNavigation = () => {
         }}
       >
 
+
         <Tab.Screen
           name="Feed"
           component={FeedStackNavigation}
@@ -59,7 +60,7 @@ const BottomTabNavigation = () => {
             tabBarIcon: ({ focused }) => (
               <View style={{ alignItems: 'center' }}>
                 <View style={{ width: 30, height: 3, backgroundColor: focused ? 'blue' : 'white', marginBottom: 5 }} />
-                <Menu stroke={focused ? 'black' : 'gray'} height={22} width={22} />
+                <Home stroke={focused ? 'black' : 'gray'} height={22} width={22} />
               </View>
             ),
           }}

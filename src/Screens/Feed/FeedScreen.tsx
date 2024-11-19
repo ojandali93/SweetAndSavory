@@ -185,8 +185,8 @@ const FeedScreen = () => {
         addClick={goToAddRecipes}
         notifications={true}
         notificationsClick={() => {}}
-        // share={true}
-        // shareClick={() => {navigation.navigate('ShareScreen')}}
+        share={true}
+        shareClick={() => {navigation.navigate('ShareScreen')}}
       />
       <View style={tailwind`flex-1`}>
         {fetchingFollowing ? (

@@ -70,6 +70,13 @@ interface UserContextType {
   loadingFromAsync: boolean
   fetchingFollowing: boolean
   getUserProfileById: (user_id: string) => void
+  shareResults: any[],
+  getRandomUsers: () => void,
+  shareWithPeople: (selectedShare: string[], recipe_id: number, recipe_title: string, recipe_description: string) => void
+  userShared: any[],
+  getUserShared: (user_id: string) => void
+  shareRecipes: any,
+  getSharedRecipes: (share_id: number) => void
 }
 
 interface SingleImageProp {
@@ -113,6 +120,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [loadingFromAsync, setLoadingFromAsync] = useState<boolean>(true)
   const [fetchingFollowing, setFetchingFollowing] = useState<boolean>(true)
 
+  const [shareResults, setShareResults] = useState<any[]>([])
+
+  const [userShared, setUserShared] = useState<any[]>([])
+  const [shareRecipes, setShareRecipes] = useState<any[]>([])
+
   useLayoutEffect(() => {
     
     AsyncStorage.getItem('currentUser').then((user) => {
@@ -132,6 +144,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         getUserActivity(parsedData.user_id)
         getUserFriendsPending(parsedData.user_id)
         getUserListPending(parsedData.user_id)
+        getUserShared(parsedData.user_id)
         setLoadingFromAsync(false)
       } else {
         setLoadingFromAsync(false)
@@ -396,6 +409,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       getUserFriendsPending(data[0].user_id)
       getUserListPending(data[0].user_id)
       getFCMToken(data[0].user_id)
+      getUserShared(data[0].user_id)
       setLoggingIn(false)
       AsyncStorage.setItem('currentUser', JSON.stringify(user));
       AsyncStorage.setItem('currentProfile', JSON.stringify(data[0]));~
@@ -913,6 +927,177 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       console.error('An error occurred while fetching user lists and recipes:', err);
     }
   };
+
+  const getRandomUsers = async () => {
+    try {
+      const { data: randomUsers, error } = await supabase
+        .from('Profiles')
+        .select('*')
+        .limit(25); // Limit the number of rows to 25
+  
+      if (error) {
+        console.error('Error fetching random users:', error);
+        return;
+      }
+  
+      console.log('Random users:', randomUsers);
+      setShareResults(randomUsers); // Assuming you want to set the first random profile
+    } catch (err) {
+      console.error('An error occurred while fetching random users:', err);
+    }
+  };
+
+  const shareWithPeople = async (selectedShare: string[], recipe_id: number, recipe_title: string, recipe_description: string) => {
+    if(selectedShare.length > 1){
+      selectedShare.map((item) => {
+        checkShareRecord(item, recipe_id, recipe_title, recipe_description)
+      })
+    } else {
+      checkShareRecord(selectedShare[0], recipe_id, recipe_title, recipe_description)
+    }
+  }
+
+  const checkShareRecord = async (user_id: string, recipe_id: number, recipe_title: string, recipe_description: string) => {
+    try {
+      const { data: shareData, error: shareError } = await supabase
+        .from('Share')
+        .select('*')
+        .or(
+          `and(user_1.eq.${user_id},user_2.eq.${currentProfile.user_id}),and(user_1.eq.${currentProfile.user_id},user_2.eq.${user_id})`
+        );
+
+      if (shareError) {
+        console.error('Error checking share record: ', shareError);
+        return;
+      }
+      console.log('this is an existing share record: ', JSON.stringify(shareData))
+      // If shareData contains records, log the found share records
+      if (shareData && shareData.length > 0) {
+        updateShare(shareData[0].id, recipe_id, user_id, recipe_title, recipe_description)
+      } else {
+        // console.log('need to create a new record')
+        createShare(user_id, recipe_id, recipe_title, recipe_description)
+      }
+    } catch(error) {
+      console.error('Error checking if relationship exists: ', error)
+    }
+  }
+
+  const createShare = async (user_id: string, recipe_id: number, recipe_title: string, recipe_description: string) => {
+    try {
+      const { data: createdData, error: createdError} = await supabase 
+        .from('Share')
+        .insert([{
+          user_1: currentProfile.user_id,
+          user_2: user_id,
+          recipe_title: recipe_title,
+          recipe_description: recipe_description,
+          last_updated: new Date()
+        }])
+        .select()
+
+        if(createdError){
+          console.log('Error creating share with: ', createdError)
+        }
+
+        if(createdData){
+          console.log('share record created: ', createdData[0].id)
+          shareRecipeWithUser(createdData[0].id, recipe_id, user_id)
+        } else {
+          console.log('share record not found')
+        }
+
+    } catch(error) {
+      console.error('Error creating single share: ', error)
+    }
+  }
+
+  const updateShare = async (share_id: number, recipe_id: number, user_id: string, recipe_title: string, recipe_description: string) => {
+    try {
+      const { data: createdData, error: createdError} = await supabase 
+        .from('Share')
+        .update([{
+          recipe_title: recipe_title,
+          recipe_description: recipe_description,
+          last_updated: new Date()
+        }])
+        .eq('id', share_id)
+        .select()
+
+        if(createdError){
+          console.log('Error creating share with: ', createdError)
+        }
+
+        if(createdData){
+          shareRecipeWithUser(createdData[0].id, recipe_id, user_id)
+        } else {
+          console.log('share record not found')
+        }
+
+    } catch(error) {
+      console.error('Error creating single share: ', error)
+    }
+  }
+
+  const shareRecipeWithUser = async (share_id: number, recipe_id: number, user_id: string) => {
+    try {
+      const { data: createdData, error: createdError} = await supabase 
+        .from('ShareRecipes')
+        .insert([{
+          share_id: share_id,
+          sender_id: currentProfile.user_id,
+          receiver_id: user_id,
+          recipe_id: recipe_id
+        }])
+        .select()
+
+        if(createdError){
+          console.log('Error creating the recipe share: ', createdError)
+        } else {
+          console.log('shared recipe: ', JSON.stringify(createdData))
+        }
+    } catch(error) {
+      console.error('Error sharing a recipe: ', error)
+    }
+  }
+
+  const getUserShared = async (user_id: string) => {
+    try {
+      const { data: createdData, error: createdError} = await supabase 
+        .from('Share')
+        .select(`
+          *,
+          user_1_profile:Profiles!user_1(*),
+          user_2_profile:Profiles!user_2(*)
+        `)
+        .or(`user_1.eq.${user_id},user_2.eq.${user_id}`);
+
+        if(createdError){
+          console.log('Error creating the recipe share: ', createdError)
+        } else {
+          setUserShared(createdData)
+        }
+    } catch(error) {
+      console.error('Error sharing a recipe: ', error)
+    }
+  }
+
+  const getSharedRecipes = async (share_id: number) => {
+    try {
+      const { data: createdData, error: createdError} = await supabase 
+        .from('ShareRecipes')
+        .select(`*, Recipes(*)`)
+        .eq('share_id', share_id);
+
+        if(createdError){
+          console.log('Error creating the recipe share: ', createdError)
+        } else {
+          setShareRecipes(createdData)
+        }
+    } catch(error) {
+      console.error('Error sharing a recipe: ', error)
+    }
+  }
   
   return (
     <UserContext.Provider
@@ -955,7 +1140,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         generateNotification, 
         loadingFromAsync, 
         fetchingFollowing,
-        getUserProfileById
+        getUserProfileById,
+        shareResults,
+        getRandomUsers,
+        shareWithPeople,
+        userShared,
+        getUserShared,
+        shareRecipes,
+        getSharedRecipes
       }}
     >
       {children}

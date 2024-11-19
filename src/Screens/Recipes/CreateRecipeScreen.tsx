@@ -134,7 +134,6 @@ const CreateRecipeScreen = () => {
       prepTime.length === 0 ||
       cookTime.length === 0 ||
       recipeMainImage === null ||
-      ingredients[0].amount.length === 0 ||
       ingredients[0].item.length === 0 ||
       instructions[0].item.length === 0 ||
       categories.length === 0 ||
@@ -380,15 +379,15 @@ const CreateRecipeScreen = () => {
           <Text style={tailwind`text-2xl font-bold`}>Details</Text>
           <View style={tailwind`w-full h-1 bg-stone-600`}></View>
         </View>
-        <RecipeInput header='Title:' required={true} value={title} updateInput={setTitle} capitalize='none' multi={false} placeholder='recipe title...'/>
-        <RecipeInput header='Description:' required={true} value={description} updateInput={setDescription} capitalize='none' multi={true} placeholder='recipe description...'/>
-        <RecipeInput header='Yield:' required={true} value={yieldAmount} updateInput={setYieldAmount} capitalize='none' multi={false} placeholder='recipe yield...'/>
+        <RecipeInput header='Title:' required={true} value={title} updateInput={setTitle} capitalize='sentences' multi={false} placeholder='recipe title...'/>
+        <RecipeInput header='Description:' required={true} value={description} updateInput={setDescription} capitalize='sentences' multi={true} placeholder='recipe description...'/>
+        <RecipeInput header='Yield:' required={true} value={yieldAmount} updateInput={setYieldAmount} capitalize='sentences' multi={false} placeholder='recipe yield...'/>
         <View style={tailwind`w-full flex flex-row`}>
           <View style={tailwind`w-1/2`}>
-            <RecipeInput header='Prep Time:' required={true} value={prepTime} updateInput={setPrepTime} capitalize='none' multi={false} placeholder='recipe prep time...'/>
+            <RecipeInput header='Prep Time:' required={true} value={prepTime} updateInput={setPrepTime} capitalize='sentences' multi={false} placeholder='recipe prep time...'/>
           </View>
           <View style={tailwind`w-1/2`}>
-            <RecipeInput header='Cook Time:' required={true} value={cookTime} updateInput={setCookTime} capitalize='none' multi={false} placeholder='recipe cook time...'/>
+            <RecipeInput header='Cook Time:' required={true} value={cookTime} updateInput={setCookTime} capitalize='sentences' multi={false} placeholder='recipe cook time...'/>
           </View>
         </View>
         <View style={tailwind`mt-4 rounded-full`}>

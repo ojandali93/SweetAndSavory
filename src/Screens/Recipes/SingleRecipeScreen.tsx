@@ -13,12 +13,15 @@ import IngredientsDetails from '../../Components/Info/IngredientsDetails';
 import CategoriesDetails from '../../Components/Info/CategoriesDetails';
 import NutritionDetails from '../../Components/Info/NutritionDetails';
 import AuthorDetails from '../../Components/Info/AuthorDetails';
-import { ChevronsUp, Minimize } from 'react-native-feather';
+import { Bookmark, Check, ChevronsUp, Heart, Minimize, Send, User, X } from 'react-native-feather';
 import supabase from '../../Utils/supabase';
 import { useUser } from '../../Context/UserContext';
 import Video from 'react-native-video';
 import { useApp } from '../../Context/AppContext';
 import { ProfileStackNavigator } from '../../Navigation/ProfileStackNavigation';
+import Verified from '../../Assets/POS-verified-blue.png'
+import MainButton from '../../Components/Buttons/Content/MainButton';
+import ResetPassword from '../Profile/ResetPassword';
 
 type SingleRecipeRouteProp = RouteProp<ProfileStackNavigator, 'SingleRecipeScreen'>;
 
@@ -27,7 +30,7 @@ const SingleRecipeScreen = () => {
   const { recipe } = route.params;
 
   const navigation = useNavigation();
-  const { currentProfile, generateNotification } = useUser();
+  const { shareWithPeople, getRandomUsers, shareResults, currentProfile, generateNotification, userFavorites, addToFavorite, removeFromFavorite, userFollowingNoReipce } = useUser();
   const { createNotification } = useApp()
 
   const [showCommentInput, setShowCommentInput] = useState(false);
@@ -38,17 +41,54 @@ const SingleRecipeScreen = () => {
   const [allLikes, setAllLikes] = useState<any[]>([]);
   const [likeStatus, setLikeStatus] = useState<boolean>(false);
   
+  const [showShare, setShowShare] = useState<boolean>(false)
+  
   const [maximizeVideo, setMaximizeVideo] = useState<boolean>(false)
+
+  const [search, setSearch] = useState<string>('')
+  const [results, setResults] = useState<any[]>(userFollowingNoReipce.length > 10 ? userFollowingNoReipce : shareResults)
+
+  const [selectedShare, setSelectedShare] = useState<string[]>([])
 
   const scrollViewRef = useRef(null);
 
-  const screenHeight = Dimensions.get('window').height; // Get screen height
+  const screenHeight = Dimensions.get('window').height; 
 
   useEffect(() => {
     getComments();
     getFavorites();
     getLikes();
+    getRandomUsers();
   }, []);
+
+  console.log('results: ', results)
+
+  const toggleSelectedShare = (user_id: string) => {
+    if(selectedShare.includes(user_id)){
+      const updatedUsers = selectedShare.filter((item) => item !== user_id);
+      setSelectedShare(updatedUsers)
+    } else {
+      setSelectedShare(prev => [...prev, user_id])
+    }
+  }
+
+  const handleUpdateSearch = async (data: string) => {
+    setSearch(data)
+    try {
+      // Perform a query to search for profiles by both username and account_name
+      const { data, error } = await supabase
+        .from('Profiles')
+        .select('*')
+        .or(`username.ilike.%${search}%,account_name.ilike.%${search}%`); // Search in both username and account_name
+      if (error) {
+        console.error('Error fetching profiles:', error);
+        return;
+      }
+      setResults(data); // Update the state with the fetched profiles
+    } catch (err) {
+      console.error('Unexpected error during profile search:', err);
+    }
+  }
 
   const getFavorites = async () => {
     try {
@@ -102,51 +142,6 @@ const SingleRecipeScreen = () => {
     }
   };
 
-  const addFavorite = async () => {
-    if (!currentProfile) {
-      Alert.alert('Login Required', 'You need to be logged in to like a recipe.', [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Login',
-          onPress: () => navigation.navigate('LoginScreenFeed'),
-        },
-      ]);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('Favorites')
-        .insert([
-          {
-            recipe_id: recipe.id,
-            user_id: currentProfile.user_id,
-          },
-        ]);
-      if (error) {
-        console.error('Error adding like:', error);
-      } else {
-        createNotification(
-          recipe.user_profile.user_id, 
-          null,
-          null,
-          recipe.id,
-          null,
-          null,
-          `${recipe.title} was added to favorites`,
-          currentProfile.user_id
-        )
-        generateNotification(recipe.user_profile.fcm_token, 'New Favorite', `${recipe.title} was added to favorites`)
-        getFavorites(); // Refresh likes after adding
-      }
-    } catch (error) {
-      console.error('Unexpected error while adding like:', error);
-    }
-  };
-
   const addLike = async () => {
     if (!currentProfile) {
       Alert.alert('Login Required', 'You need to be logged in to like a recipe.', [
@@ -192,37 +187,6 @@ const SingleRecipeScreen = () => {
     }
   };
 
-  const removeFavorite = async () => {
-    if (!currentProfile) {
-      Alert.alert('Login Required', 'You need to be logged in to unlike a recipe.', [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Login',
-          onPress: () => navigation.navigate('LoginScreenFeed'),
-        },
-      ]);
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('Favorites')
-        .delete()
-        .eq('recipe_id', recipe.id)
-        .eq('user_id', currentProfile.user_id);
-
-      if (error) {
-        console.error('Error removing like:', error);
-      } else {
-        getFavorites(); // Refresh likes after removing
-      }
-    } catch (error) {
-      console.error('Unexpected error while removing like:', error);
-    }
-  };
 
   const removeLikes = async () => {
     if (!currentProfile) {
@@ -354,22 +318,100 @@ const SingleRecipeScreen = () => {
     return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
   }
 
+  const isLikedByUser = currentProfile && currentProfile.user_id ? allLikes.some((like) => like.user_id === currentProfile.user_id) : false
+  const isFavorite = userFavorites.find((favorite) => favorite.recipe_id === recipe.id)
+
+  const handleFavoriteToggle = () => {
+    if(currentProfile && currentProfile.user_id){
+      if (isFavorite) {
+        // If the record exists, remove the recipe from favorites
+        removeFromFavorite(isFavorite.id, currentProfile.user_id) // Pass the favorite's ID for removal
+      } else {
+        // If the record doesn't exist, add the recipe to favorites
+        addToFavorite(currentProfile.user_id, recipe.id)
+      }
+    } else {
+      Alert.alert('Login Required', 'You must be logged in to favorite this recipe')
+    }
+  }
+
+  const handleLiked = () => {
+    if(currentProfile && currentProfile.user_id){
+      if (isLikedByUser) {
+        removeLikes()
+      } else {
+        addLike()
+      }
+    } else {
+      Alert.alert('Login Required', 'You must be logged in to like a recipe.')
+    }
+  }
+
+  const toggleShowShare = () => {
+    if(currentProfile && currentProfile.user_id){
+      setShowShare(true)
+    } else {
+      Alert.alert('Login Required', 'You must be logged in to like a recipe.')
+    }
+  }
+
+  const toggleShareWithPeople = () => {
+    console.log('all users to share wtih: ', JSON.stringify(selectedShare))
+    setSelectedShare([])
+    setShowShare(false)
+    shareWithPeople(selectedShare, recipe.id, recipe.title, recipe.description)
+  }
+
   return (
     <KeyboardAvoidingView style={tailwind`flex-1 bg-white`} behavior="padding" keyboardVerticalOffset={90}>
       <StandardHeader
         header={limitStringSize(recipe.title)}
         back={true}
-        activeFavorites={true}
-        activeFavoritesStatus={favoritesStatus}
-        addFavorite={addFavorite}
-        removeFavofite={removeFavorite}
-        like={true}
-        likeStatus={likeStatus}
-        addLike={addLike}
-        removeLike={removeLikes}
       />
       <ScrollView ref={scrollViewRef} style={tailwind`p-3`} onScroll={handleScroll} scrollEventThrottle={16}>
         <DisplayImageRecipe image={recipe.main_image} />
+        <View style={tailwind`w-full flex flex-row items-center justify-between mt-4 px-3`}>
+          <View style={tailwind`flex flex-row items-center`}>
+            <TouchableOpacity 
+              onPress={handleLiked} 
+              style={tailwind`flex flex-row items-center`}
+            >
+              <Heart 
+                height={24} 
+                width={24} 
+                color={'black'} 
+                fill={isLikedByUser ? 'white' : 'none'} 
+              />
+              <Text style={tailwind`ml-1 text-base font-bold`}>{allLikes.length}</Text>
+            </TouchableOpacity>
+            <View style={tailwind`ml-4`}>
+              <TouchableOpacity 
+                onPress={handleFavoriteToggle} 
+                style={tailwind``}
+              >
+                <Bookmark 
+                  height={24} 
+                  width={24} 
+                  color={'black'} 
+                  fill={isFavorite ? 'black' : 'none'} 
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={tailwind``}>
+            <TouchableOpacity 
+              onPress={toggleShowShare} 
+              style={tailwind``}
+            >
+              <Send 
+                height={24} 
+                width={24} 
+                color={'black'}
+                
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
         <RecipeDetails title={recipe.title} description={recipe.description} />
         <RecipeSummary
           prepTime={recipe.prep_time}
@@ -474,6 +516,88 @@ const SingleRecipeScreen = () => {
           >
             <Minimize height={20} width={20} color={'white'}/>
           </TouchableOpacity>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showShare}
+        onRequestClose={() => setShowShare(false)}
+      >
+        <View style={tailwind`flex-1 justify-end bg-black bg-opacity-0`}>
+          <View style={[tailwind`bg-slate-950 w-full rounded-t-lg p-4`, {height: Dimensions.get('screen').height * .7}]}>
+
+            <View style={tailwind`w-full flex flex-row justify-between px-2 py-3`}>
+              <Text style={tailwind`text-2xl font-bold mb-2 text-white`}>Share Recipe</Text>
+              <TouchableOpacity onPress={() => {setShowShare(false)}}>
+                <X height={28} width={28} color={'white'}/>
+              </TouchableOpacity>
+            </View>
+
+            <View style={tailwind`w-full my-1 bg-slate-700 flex flex-row items-center p-2 rounded-3 mb-3`}>
+              <User height={24} width={24} color={'white'}/>
+              <View style={tailwind`flex-1 mx-3`}>
+                <View style={tailwind`w-full px-2`}>
+                  <TextInput 
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder={'search users...'}
+                    placeholderTextColor={'grey'}
+                    autoCapitalize={'none'}
+                    multiline={false}
+                    style={tailwind`w-full border-b-2 border-b-stone-700 text-base text-white pb-1 px-1`}
+                    secureTextEntry={false}
+                  />
+                </View>
+              </View>
+              {
+                search.length > 0
+                  ? <TouchableOpacity>
+                      <X height={24} width={24} color={'white'}/>
+                    </TouchableOpacity>
+                  : null
+              }
+            </View>
+
+            {/* List of Followers */}
+            <ScrollView style={tailwind`flex-1`}>
+              {
+                results.map((user, index) => (
+                  <TouchableOpacity 
+                    onPress={() => {toggleSelectedShare(user.user_id)}}
+                    key={index} 
+                    style={tailwind`flex flex-row items-center mb-3 border-b border-gray-200 pb-2`}
+                  >
+                    <View style={tailwind`flex-1 h-full flex flex-row items-center p-2`}>
+                      {
+                        user.profile_picture
+                          ? <Image style={tailwind`h-10 w-10 rounded-full border-2 border-stone-400`} source={{ uri: user.profile_picture }} />
+                          : <View style={tailwind`h-10 w-10 rounded-full border-2 border-stone-400 bg-stone-200`}></View>
+                      }
+                      <View style={tailwind`ml-2 flex-1 flex flex-row items-center`}>
+                        <Text style={tailwind`font-bold text-base text-white`}>{user.username}</Text>
+                        {
+                          user.verified 
+                            ? <Image style={tailwind`ml-2 h-4 w-4`} source={Verified}/>
+                            : null
+                        }
+                      </View>
+                      {
+                        selectedShare.includes(user.user_id)
+                          ? <Check height={24} width={24} style={tailwind`text-sky-600 font-bold`}/>
+                          : null
+                      }
+                    </View>
+                  </TouchableOpacity>
+                ))
+              }
+            </ScrollView>
+            {
+              selectedShare.length > 0
+                ? <View style={tailwind`mb-4`}><MainButton header='Share' clickButton={toggleShareWithPeople} loading={false}/></View>
+                : null
+            }
+          </View>
         </View>
       </Modal>
     </KeyboardAvoidingView>
