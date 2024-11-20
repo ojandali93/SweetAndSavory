@@ -221,7 +221,6 @@ const NotificationScreen = () => {
                   </View>
                 </View>
               </View>
-
         }
       </View>
     </View>

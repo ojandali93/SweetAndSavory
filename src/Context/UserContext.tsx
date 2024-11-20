@@ -5,6 +5,8 @@ import { Alert, Platform } from 'react-native';
 import { useRecipe } from './RecipeContext';
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useApp } from './AppContext';
+import { create } from 'twrnc';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -77,6 +79,8 @@ interface UserContextType {
   getUserShared: (user_id: string) => void
   shareRecipes: any,
   getSharedRecipes: (share_id: number) => void
+  acceptShareRequest: (share_id: number, navigation: any) => void,
+  removeShareRequest: (share_id: number, navigation: any) => void
 }
 
 interface SingleImageProp {
@@ -87,6 +91,7 @@ interface SingleImageProp {
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const {grabUserRecipes} = useRecipe()
+  const {createNotification} = useApp()
 
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [currentProfile, setCurrentProfile] = useState<any>(null)
@@ -998,7 +1003,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       console.log('this is an existing share record: ', JSON.stringify(shareData))
       // If shareData contains records, log the found share records
       if (shareData && shareData.length > 0) {
-        updateShare(shareData[0].id, recipe_id, user_id, recipe_title, recipe_description, user)
+        updateShare(shareData[0].id, recipe_id, user_id, recipe_title, recipe_description, user, shareData[0])
       } else {
         // console.log('need to create a new record')
         createShare(user_id, recipe_id, recipe_title, recipe_description, user)
@@ -1028,7 +1033,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         if(createdData){
           console.log('share record created: ', createdData[0].id)
-          generateNotification(user.fcm_token, 'Share Request', `${currentProfile.username} wants to share a recipe with you`)
+          createNotification(user_id, null, null, null, null, null, createdData[0].id, `${currentProfile.username} wants to shared a recipe with you`, currentProfile.username )          
           shareRecipeWithUser(createdData[0].id, recipe_id, user_id, createdData[0], user)
         } else {
           console.log('share record not found')
@@ -1039,30 +1044,34 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
-  const updateShare = async (share_id: number, recipe_id: number, user_id: string, recipe_title: string, recipe_description: string, user: any) => {
-    try {
-      const { data: createdData, error: createdError} = await supabase 
-        .from('Share')
-        .update([{
-          recipe_title: recipe_title,
-          recipe_description: `${currentProfile.username} shared ${recipe_title} with you.`,
-          last_updated: new Date()
-        }])
-        .eq('id', share_id)
-        .select()
-
-        if(createdError){
-          console.log('Error creating share with: ', createdError)
-        }
-
-        if(createdData){
-          shareRecipeWithUser(createdData[0].id, recipe_id, user_id, createdData[0], user)
-        } else {
-          console.log('share record not found')
-        }
-
-    } catch(error) {
-      console.error('Error creating single share: ', error)
+  const updateShare = async (share_id: number, recipe_id: number, user_id: string, recipe_title: string, recipe_description: string, user: any, share: any) => {
+    if(share.status === 'pending'){
+      Alert.alert('Pending Request', 'You can not share recipes because the request is still pending.')
+    } else {
+      try {
+        const { data: createdData, error: createdError} = await supabase 
+          .from('Share')
+          .update([{
+            recipe_title: recipe_title,
+            recipe_description: `${currentProfile.username} shared ${recipe_title} with you.`,
+            last_updated: new Date()
+          }])
+          .eq('id', share_id)
+          .select()
+  
+          if(createdError){
+            console.log('Error creating share with: ', createdError)
+          }
+  
+          if(createdData){
+            shareRecipeWithUser(createdData[0].id, recipe_id, user_id, createdData[0], user)
+          } else {
+            console.log('share record not found')
+          }
+  
+      } catch(error) {
+        console.error('Error creating single share: ', error)
+      }
     }
   }
 
@@ -1084,7 +1093,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           } else {
             if(share.status === 'accepted'){
               console.log('final share user: ', JSON.stringify(user))
-              generateNotification(user.fcm_token, 'Shared Recipe', `${currentProfile.username} shared a recipe with you`)
+              createNotification(user_id, null, null, null, null, null, share_id, `${currentProfile.username} shared a recipe with you`, currentProfile.username )
               console.log('shared recipe: ', JSON.stringify(createdData))
             } else {
               console.log('shared recipe: ', JSON.stringify(createdData))
@@ -1130,6 +1139,44 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           console.log('Error creating the recipe share: ', createdError)
         } else {
           setShareRecipes(createdData)
+        }
+    } catch(error) {
+      console.error('Error sharing a recipe: ', error)
+    }
+  }
+
+  const acceptShareRequest = async (share_id: number, navigation: any) => {
+    try {
+      const { data: createdData, error: createdError} = await supabase 
+        .from('Share')
+        .update({
+          status: 'accepted'
+        })
+        .eq('id', share_id);
+
+        if(createdError){
+          console.log('Error creating the recipe share: ', createdError)
+        } else {
+          getUserShared(currentProfile.user_id)
+          navigation.goBack()
+        }
+    } catch(error) {
+      console.error('Error sharing a recipe: ', error)
+    }
+  }
+
+  const removeShareRequest = async (share_id: number, navigation: any) => {
+    try {
+      const { data: createdData, error: createdError} = await supabase 
+        .from('Share')
+        .delete()
+        .eq('id', share_id);
+
+        if(createdError){
+          console.log('Error creating the recipe share: ', createdError)
+        } else {
+          getUserShared(currentProfile.user_id)
+          navigation.goBack()
         }
     } catch(error) {
       console.error('Error sharing a recipe: ', error)
@@ -1184,7 +1231,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         userShared,
         getUserShared,
         shareRecipes,
-        getSharedRecipes
+        getSharedRecipes,
+        acceptShareRequest,
+        removeShareRequest
       }}
     >
       {children}

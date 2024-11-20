@@ -28,7 +28,7 @@ export type FeedStackParamList = {
   NotificationScreen: undefined;
   ResetPasswordScreen: {email: string, token: string}
   ShareScreen: undefined
-  SingleShareScreen: {username: string}
+  SingleShareScreen: {username: string, item: any}
 };
 
 const StackNav = createStackNavigator<FeedStackParamList>();

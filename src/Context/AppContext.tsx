@@ -27,6 +27,7 @@ interface AppContextType {
     post_id: number | null,
     friend_id: number | null, 
     list_id: number | null,
+    share_id: number | null,
     activity: string,
     created_by: string
   ) => void
@@ -41,6 +42,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     post_id: number | null,
     friend_id: number | null, 
     list_id: number | null,
+    share_id: number | null,
     activity: string,
     created_by: string
   ) => {
@@ -56,7 +58,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (comment_id !== null) query = query.eq('comment_id', comment_id);
       if (post_id !== null) query = query.eq('post_id', post_id);
       if (friend_id !== null) query = query.eq('friend_id', friend_id);
-      if (list_id !== null) query = query.eq('friend_id', list_id);
+      if (list_id !== null) query = query.eq('list_id', list_id);
+      if (share_id !== null) query = query.eq('share', share_id);
   
       const { data: existingActivity, error: fetchError } = await query.single();
   
@@ -79,6 +82,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             post_id,
             friend_id,
             list_id,
+            share_id,
             activity,
             created_by
           }
