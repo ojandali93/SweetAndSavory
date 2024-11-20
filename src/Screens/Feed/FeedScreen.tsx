@@ -30,7 +30,7 @@ import supabase from '../../Utils/supabase';
 
 const FeedScreen = () => {
   const navigation = useNavigation();
-  const { currentProfile, loginUser, userFollowing, loadingFromAsync, fetchingFollowing } = useUser();
+  const { currentProfile, loginUser, userFollowing, loadingFromAsync, fetchingFollowing, loggingIn } = useUser();
   const { userRecipes, grabUserRecipes } = useRecipe();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -43,7 +43,7 @@ const FeedScreen = () => {
   const [resetEmail, setResetEmail] = useState('');
 
   const submitUserLoginFeed = () => {
-    loginUser(username.toLowerCase(), password, navigation, 'ListScreen');
+    loginUser(username.toLowerCase(), password, navigation, 'FeedScreen');
     setUsername('')
     setPassword('')
   };
@@ -156,7 +156,7 @@ const FeedScreen = () => {
             </View>
 
             <View style={tailwind`mt-4`}>
-              <RedButton header='Login' submit={submitUserLoginFeed} loading={false} />
+              <RedButton header='Login' submit={submitUserLoginFeed} loading={loggingIn} />
             </View>
 
             <View style={tailwind`w-full flex flex-row justify-between items-center mt-4`}>

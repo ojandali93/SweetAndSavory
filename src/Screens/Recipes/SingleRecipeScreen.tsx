@@ -1,5 +1,5 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { ScrollView, Text, TextInput, View, KeyboardAvoidingView, TouchableOpacity, Alert, Image, Modal, Dimensions } from 'react-native';
 import { FeedStackParamList } from '../../Navigation/FeedStackNavigation';
 import tailwind, { create } from 'twrnc';
@@ -30,7 +30,7 @@ const SingleRecipeScreen = () => {
   const { recipe } = route.params;
 
   const navigation = useNavigation();
-  const { shareWithPeople, getRandomUsers, shareResults, currentProfile, generateNotification, userFavorites, addToFavorite, removeFromFavorite, userFollowingNoReipce } = useUser();
+  const { shareWithPeople, shareResults, currentProfile, generateNotification, userFavorites, addToFavorite, removeFromFavorite, userFollowingNoReipce } = useUser();
   const { createNotification } = useApp()
 
   const [showCommentInput, setShowCommentInput] = useState(false);
@@ -46,7 +46,7 @@ const SingleRecipeScreen = () => {
   const [maximizeVideo, setMaximizeVideo] = useState<boolean>(false)
 
   const [search, setSearch] = useState<string>('')
-  const [results, setResults] = useState<any[]>(userFollowingNoReipce.length > 10 ? userFollowingNoReipce : shareResults)
+  const [results, setResults] = useState<any[]>([])
 
   const [selectedShare, setSelectedShare] = useState<string[]>([])
 
@@ -59,9 +59,35 @@ const SingleRecipeScreen = () => {
     getFavorites();
     getLikes();
     getRandomUsers();
+    checkForFollowing()
   }, []);
 
-  console.log('results: ', results)
+  const checkForFollowing = () => {
+    if (userFollowingNoReipce.length > 10) {
+      setResults(userFollowingNoReipce);
+    } else {
+      getRandomUsers();
+    }
+  }
+
+  const getRandomUsers = async () => {
+    try {
+      const { data: randomUsers, error } = await supabase
+        .from('Profiles')
+        .select('*')
+        .limit(25); // Limit the number of rows to 25
+  
+      if (error) {
+        console.error('Error fetching random users:', error);
+        return;
+      }
+  
+      console.log('Random users:', randomUsers);
+      setResults(randomUsers); // Assuming you want to set the first random profile
+    } catch (err) {
+      console.error('An error occurred while fetching random users:', err);
+    }
+  };
 
   const toggleSelectedShare = (user_id: string) => {
     if(selectedShare.includes(user_id)){
@@ -73,20 +99,25 @@ const SingleRecipeScreen = () => {
   }
 
   const handleUpdateSearch = async (data: string) => {
-    setSearch(data)
-    try {
-      // Perform a query to search for profiles by both username and account_name
-      const { data, error } = await supabase
-        .from('Profiles')
-        .select('*')
-        .or(`username.ilike.%${search}%,account_name.ilike.%${search}%`); // Search in both username and account_name
-      if (error) {
-        console.error('Error fetching profiles:', error);
-        return;
+    if(data === ''){
+      setSearch(data)
+      checkForFollowing()
+    } else {
+      setSearch(data)
+      try {
+        // Perform a query to search for profiles by both username and account_name
+        const { data, error } = await supabase
+          .from('Profiles')
+          .select('*')
+          .or(`username.ilike.%${search}%,account_name.ilike.%${search}%`); // Search in both username and account_name
+        if (error) {
+          console.error('Error fetching profiles:', error);
+          return;
+        }
+        setResults(data); // Update the state with the fetched profiles
+      } catch (err) {
+        console.error('Unexpected error during profile search:', err);
       }
-      setResults(data); // Update the state with the fetched profiles
-    } catch (err) {
-      console.error('Unexpected error during profile search:', err);
     }
   }
 
@@ -356,10 +387,10 @@ const SingleRecipeScreen = () => {
   }
 
   const toggleShareWithPeople = () => {
-    console.log('all users to share wtih: ', JSON.stringify(selectedShare))
+    console.log('recipe to share: ', JSON.stringify(recipe.user_profile))
     setSelectedShare([])
     setShowShare(false)
-    shareWithPeople(selectedShare, recipe.id, recipe.title, recipe.description)
+    shareWithPeople(selectedShare, recipe.id, recipe.title, recipe.description, recipe.user_profile)
   }
 
   return (
@@ -540,7 +571,7 @@ const SingleRecipeScreen = () => {
                 <View style={tailwind`w-full px-2`}>
                   <TextInput 
                     value={search}
-                    onChangeText={setSearch}
+                    onChangeText={handleUpdateSearch}
                     placeholder={'search users...'}
                     placeholderTextColor={'grey'}
                     autoCapitalize={'none'}
@@ -552,7 +583,7 @@ const SingleRecipeScreen = () => {
               </View>
               {
                 search.length > 0
-                  ? <TouchableOpacity>
+                  ? <TouchableOpacity onPress={() => {handleUpdateSearch('')}}>
                       <X height={24} width={24} color={'white'}/>
                     </TouchableOpacity>
                   : null

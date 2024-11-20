@@ -72,7 +72,7 @@ interface UserContextType {
   getUserProfileById: (user_id: string) => void
   shareResults: any[],
   getRandomUsers: () => void,
-  shareWithPeople: (selectedShare: string[], recipe_id: number, recipe_title: string, recipe_description: string) => void
+  shareWithPeople: (selectedShare: string[], recipe_id: number, recipe_title: string, recipe_description: string, user: any) => void
   userShared: any[],
   getUserShared: (user_id: string) => void
   shareRecipes: any,
@@ -300,25 +300,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }
 
   // USER LOGIN FUNCTIONS
-  // - takes in username, password, and navigation
-
-  const getFCMToken = async (user_id: string) => {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-      const fcmToken = await messaging().getToken();
-      if (fcmToken) {
-        // Here, you should send the token to your server to associate it with the user
-        console.log('fcm token: ', fcmToken)
-        return fcmToken
-      } else {
-        console.log('Failed to get FCM token');
-      }
-    }
-  }
+  // - takes in username, password, and navigatio
 
   const loginUser = async (username: string, password: string, navigation: any, screen: string) => {
     setLoggingIn(true)
@@ -333,12 +315,30 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         if(data.length === 0){
           Alert.alert('Invaid Username', 'Userame does not match any records')
         } else {
-          const fcmToken = await getFCMToken(data[0].user_id)
-          loginToAccount(data[0]['email'], username, password, navigation, screen, fcmToken)
+          getFCMToken(data[0].user_id, data[0]['email'], username, password, navigation, screen)
         }
       }
     } catch (err) {
       console.log('An error occurred while fetching recipes:', err);
+    }
+  }
+
+  const getFCMToken = async (user_id: string, email: string, username: string, 
+    password: string, navigation: string, screen: string) => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+        // Here, you should send the token to your server to associate it with the user
+        console.log('fcm token: ', fcmToken)
+        loginToAccount(email, username, password, navigation, screen, fcmToken)
+      } else {
+        console.log('Failed to get FCM token');
+      }
     }
   }
 
@@ -351,15 +351,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   
       if (error) {
         console.log('Login error:', error.message);
-        setLoggingIn(false)
         if(error.message === 'Email not confirmed'){
           Alert.alert('Account Confirmation', 'Please check your email and confirm your account before logging in.');
         } else if (error.message != 'Email not confirmed') {
           Alert.alert('Login Failed', 'Username or password does not match our records.');
         }
       } else {
-        updateUserProfileWithFCMToken(fcmToken, data.user.user_id)
-        getUserProfileLogin(username, navigation, data.user, screen)
+        console.log('data from the login: ', JSON.stringify(data))
+        updateUserProfileWithFCMToken(fcmToken, data.user.id, navigation, screen)
       }
     } catch (err) {
       console.log('Error logging in:', err.message);
@@ -368,23 +367,33 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
-  const updateUserProfileWithFCMToken = async (fcmToken: any, user_id: string) => {
-    try{
-      const {data, error} = await supabase
+  const updateUserProfileWithFCMToken = async (fcmToken: string, user_id: string, navigation: any, screen: string) => {
+    try {
+      const { data, error } = await supabase
         .from('Profiles')
         .update({
-          fcm_token: fcmToken
+          fcm_token: fcmToken,
         })
-        .eq('user_id: ', user_id)
-        .select()
-      if(error){
-        console.log('error updating single record with fcm token: ', error)
-      } 
-      console.log('new user profiel: ', data)
-    }catch(error){
-      console.log('error updateing profile with token: ', error)
+        .eq('user_id', user_id)
+        .select();
+  
+      if (error) {
+        console.error('Error updating single record with FCM token:', error);
+        return;
+      }
+  
+      console.log('Most up-to-date profile:', JSON.stringify(data));
+  
+      if (data && data.length > 0) {
+        // Pass username and user data to the next function
+        getUserProfileLogin(data[0].username, navigation, data[0], screen);
+      } else {
+        console.error('No data returned after update.');
+      }
+    } catch (error) {
+      console.error('Error updating profile with token:', error);
     }
-  }
+  };
 
   const getUserProfileLogin = async (username: string, navigation: any, user: any, screen: string) => {
     try {
@@ -408,7 +417,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       getUserActivity(data[0].user_id)
       getUserFriendsPending(data[0].user_id)
       getUserListPending(data[0].user_id)
-      getFCMToken(data[0].user_id)
       getUserShared(data[0].user_id)
       setLoggingIn(false)
       AsyncStorage.setItem('currentUser', JSON.stringify(user));
@@ -426,17 +434,34 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error('Error logging out:', error.message);
         return false;
       }
-      updateUserProfileWithFCMToken(null, currentProfile.user_id)
-      setCurrentProfile(null)
-      AsyncStorage.removeItem('currentUser');
-      AsyncStorage.removeItem('currentProfile');
-      navigation.navigate('FeedScreen')
+      removeFcmTokenFromProfile(currentProfile.user_id, navigation)
       return true;
     } catch (err) {
       console.error('Unexpected error logging out:', err);
       return false;
     }
   };
+
+  const removeFcmTokenFromProfile = async (user_id: string, navigation: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('Profiles')
+        .update({fcm_token: null})
+        .eq('user_id', user_id)
+        .select()
+      if (error) {
+        console.error('Error removing fcm token out:', error.message);
+        return false;
+      }
+      setCurrentProfile(null)
+      AsyncStorage.removeItem('currentUser');
+      AsyncStorage.removeItem('currentProfile');
+      navigation.navigate('FeedScreen')
+    } catch (err) {
+      console.error('Unexpected error logging out:', err);
+      return false;
+    }
+  }
 
   const generateNotification = async (fcmToken: any, title: string, body: string, imageUrl?: string) => {
     try {
@@ -947,17 +972,17 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
-  const shareWithPeople = async (selectedShare: string[], recipe_id: number, recipe_title: string, recipe_description: string) => {
+  const shareWithPeople = async (selectedShare: string[], recipe_id: number, recipe_title: string, recipe_description: string, user: any) => {
     if(selectedShare.length > 1){
       selectedShare.map((item) => {
-        checkShareRecord(item, recipe_id, recipe_title, recipe_description)
+        checkShareRecord(item, recipe_id, recipe_title, recipe_description, user)
       })
     } else {
-      checkShareRecord(selectedShare[0], recipe_id, recipe_title, recipe_description)
+      checkShareRecord(selectedShare[0], recipe_id, recipe_title, recipe_description, user)
     }
   }
 
-  const checkShareRecord = async (user_id: string, recipe_id: number, recipe_title: string, recipe_description: string) => {
+  const checkShareRecord = async (user_id: string, recipe_id: number, recipe_title: string, recipe_description: string, user: any) => {
     try {
       const { data: shareData, error: shareError } = await supabase
         .from('Share')
@@ -973,17 +998,17 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       console.log('this is an existing share record: ', JSON.stringify(shareData))
       // If shareData contains records, log the found share records
       if (shareData && shareData.length > 0) {
-        updateShare(shareData[0].id, recipe_id, user_id, recipe_title, recipe_description)
+        updateShare(shareData[0].id, recipe_id, user_id, recipe_title, recipe_description, user)
       } else {
         // console.log('need to create a new record')
-        createShare(user_id, recipe_id, recipe_title, recipe_description)
+        createShare(user_id, recipe_id, recipe_title, recipe_description, user)
       }
     } catch(error) {
       console.error('Error checking if relationship exists: ', error)
     }
   }
 
-  const createShare = async (user_id: string, recipe_id: number, recipe_title: string, recipe_description: string) => {
+  const createShare = async (user_id: string, recipe_id: number, recipe_title: string, recipe_description: string, user: any) => {
     try {
       const { data: createdData, error: createdError} = await supabase 
         .from('Share')
@@ -992,7 +1017,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           user_2: user_id,
           recipe_title: recipe_title,
           recipe_description: recipe_description,
-          last_updated: new Date()
+          last_updated: new Date(),
+          status: 'requested'
         }])
         .select()
 
@@ -1002,7 +1028,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         if(createdData){
           console.log('share record created: ', createdData[0].id)
-          shareRecipeWithUser(createdData[0].id, recipe_id, user_id)
+          generateNotification(user.fcm_token, 'Share Request', `${currentProfile.username} wants to share a recipe with you`)
+          shareRecipeWithUser(createdData[0].id, recipe_id, user_id, createdData[0], user)
         } else {
           console.log('share record not found')
         }
@@ -1012,13 +1039,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
-  const updateShare = async (share_id: number, recipe_id: number, user_id: string, recipe_title: string, recipe_description: string) => {
+  const updateShare = async (share_id: number, recipe_id: number, user_id: string, recipe_title: string, recipe_description: string, user: any) => {
     try {
       const { data: createdData, error: createdError} = await supabase 
         .from('Share')
         .update([{
           recipe_title: recipe_title,
-          recipe_description: recipe_description,
+          recipe_description: `${currentProfile.username} shared ${recipe_title} with you.`,
           last_updated: new Date()
         }])
         .eq('id', share_id)
@@ -1029,7 +1056,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }
 
         if(createdData){
-          shareRecipeWithUser(createdData[0].id, recipe_id, user_id)
+          shareRecipeWithUser(createdData[0].id, recipe_id, user_id, createdData[0], user)
         } else {
           console.log('share record not found')
         }
@@ -1039,25 +1066,35 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
-  const shareRecipeWithUser = async (share_id: number, recipe_id: number, user_id: string) => {
-    try {
-      const { data: createdData, error: createdError} = await supabase 
-        .from('ShareRecipes')
-        .insert([{
-          share_id: share_id,
-          sender_id: currentProfile.user_id,
-          receiver_id: user_id,
-          recipe_id: recipe_id
-        }])
-        .select()
-
-        if(createdError){
-          console.log('Error creating the recipe share: ', createdError)
-        } else {
-          console.log('shared recipe: ', JSON.stringify(createdData))
-        }
-    } catch(error) {
-      console.error('Error sharing a recipe: ', error)
+  const shareRecipeWithUser = async (share_id: number, recipe_id: number, user_id: string, share: any, user: any) => {
+    if(share.status === 'accepted'){
+      try {
+        const { data: createdData, error: createdError} = await supabase 
+          .from('ShareRecipes')
+          .insert([{
+            share_id: share_id,
+            sender_id: currentProfile.user_id,
+            receiver_id: user_id,
+            recipe_id: recipe_id
+          }])
+          .select()
+  
+          if(createdError){
+            console.log('Error creating the recipe share: ', createdError)
+          } else {
+            if(share.status === 'accepted'){
+              console.log('final share user: ', JSON.stringify(user))
+              generateNotification(user.fcm_token, 'Shared Recipe', `${currentProfile.username} shared a recipe with you`)
+              console.log('shared recipe: ', JSON.stringify(createdData))
+            } else {
+              console.log('shared recipe: ', JSON.stringify(createdData))
+            }
+          }
+      } catch(error) {
+        console.error('Error sharing a recipe: ', error)
+      }
+    } else {
+      console.log('share is rejected')
     }
   }
 

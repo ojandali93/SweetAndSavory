@@ -19,7 +19,7 @@ import supabase from '../../Utils/supabase';
 
 const ProfileScreen = () => {
   const { currentProfile, userLists, userFollowingNoReipce, userFollowers, loginUser, 
-    getUserLists, getUserFollowers, getUserFollowingNoRecipe } = useUser();
+    getUserLists, getUserFollowers, getUserFollowingNoRecipe, loggingIn } = useUser();
   const { userRecipes, grabUserRecipes } = useRecipe();
   const navigation = useNavigation();
 
@@ -36,7 +36,7 @@ const ProfileScreen = () => {
   const [resetEmail, setResetEmail] = useState('');
 
   const submitUserLoginFeed = () => {
-    loginUser(username.toLowerCase(), password, navigation, 'ListScreen');
+    loginUser(username.toLowerCase(), password, navigation, 'ProfileScreen');
     setUsername('')
     setPassword('')
   };
@@ -148,7 +148,7 @@ const ProfileScreen = () => {
                 </View>
 
                 <View style={tailwind`mt-4`}>
-                  <RedButton header='Login' submit={submitUserLoginFeed} loading={false} />
+                  <RedButton header='Login' submit={submitUserLoginFeed} loading={loggingIn} />
                 </View>
 
                 <View style={tailwind`w-full flex flex-row justify-between items-center mt-4`}>
