@@ -501,13 +501,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = share.sweetandsavoryinc.sweetandsavory;
+				PRODUCT_BUNDLE_IDENTIFIER = app.sweetandsavoryinc.sweetandsavory;
 				PRODUCT_NAME = SweetAndSavory;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -532,13 +532,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = share.sweetandsavoryinc.sweetandsavory;
+				PRODUCT_BUNDLE_IDENTIFIER = app.sweetandsavoryinc.sweetandsavory;
 				PRODUCT_NAME = SweetAndSavory;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
